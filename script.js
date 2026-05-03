@@ -1,47 +1,53 @@
-const csvUrl = "https://docs.google.com/spreadsheets/d/1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM/edit?usp=sharing";
+// URL updated to the export format so fetch can actually read CSV data
+const csvUrl = "https://docs.google.com/spreadsheets/d/1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM/export?format=csv";
 
 async function loadData() {
     try {
         const response = await fetch(csvUrl);
         const data = await response.text();
 
+        // Split rows and filter out any empty lines
         const rows = data.trim().split("\n").slice(1);
 
         let branches = [];
-        let totalTransactions = 0;
+        let totalPointsCount = 0; // Renamed from totalTransactions
         let areaTotals = {};
 
         rows.forEach(row => {
             const cols = row.split(",");
 
-            const branch = cols[0];
-            const area = cols[1];
-            const transactions = parseInt(cols[2]) || 0;
+            const branch = cols[0]?.trim();
+            const area = cols[1]?.trim();
+            // Now mapping the 3rd column to 'points' instead of 'transactions'
+            const points = parseInt(cols[2]) || 0; 
 
             branches.push({
                 branch,
                 area,
-                transactions
+                points
             });
 
-            totalTransactions += transactions;
+            totalPointsCount += points;
 
-            if (!areaTotals[area]) {
-                areaTotals[area] = 0;
+            if (area) {
+                if (!areaTotals[area]) {
+                    areaTotals[area] = 0;
+                }
+                areaTotals[area] += points;
             }
-
-            areaTotals[area] += transactions;
         });
 
-        branches.sort((a, b) => b.transactions - a.transactions);
+        // Sort by points descending
+        branches.sort((a, b) => b.points - a.points);
 
-        document.getElementById("totalTransactions").innerText = totalTransactions;
+        // Update UI Elements
+        document.getElementById("totalTransactions").innerText = totalPointsCount;
         document.getElementById("topBranch").innerText = branches[0]?.branch || "-";
 
-        const topArea = Object.entries(areaTotals)
-            .sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
-
-        document.getElementById("topArea").innerText = topArea;
+        const topAreaEntry = Object.entries(areaTotals)
+            .sort((a, b) => b[1] - a[1])[0];
+        
+        document.getElementById("topArea").innerText = topAreaEntry ? topAreaEntry[0] : "-";
 
         populateLeaderboard(branches);
         populateAreaTable(areaTotals);
@@ -53,33 +59,33 @@ async function loadData() {
 
 function populateLeaderboard(branches) {
     const tbody = document.querySelector("#leaderboard tbody");
-    tbody.innerHTML = "";
-
-    branches.forEach((branch, index) => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${branch.branch}</td>
-                <td>${branch.area}</td>
-                <td>${branch.transactions}</td>
-            </tr>
-        `;
-    });
+    if (!tbody) return;
+    
+    // Using map and join is more performant than += inside a loop
+    tbody.innerHTML = branches.map((branch, index) => `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${branch.branch}</td>
+            <td>${branch.area}</td>
+            <td>${branch.points}</td>
+        </tr>
+    `).join("");
 }
 
 function populateAreaTable(areaTotals) {
     const tbody = document.querySelector("#areaTable tbody");
-    tbody.innerHTML = "";
+    if (!tbody) return;
 
-    Object.entries(areaTotals).forEach(([area, total]) => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${area}</td>
-                <td>${total}</td>
-            </tr>
-        `;
-    });
+    tbody.innerHTML = Object.entries(areaTotals).map(([area, total]) => `
+        <tr>
+            <td>${area}</td>
+            <td>${total}</td>
+        </tr>
+    `).join("");
 }
 
+// Initial Load
 loadData();
+
+// Refresh every 5 minutes (300,000ms)
 setInterval(loadData, 300000);
