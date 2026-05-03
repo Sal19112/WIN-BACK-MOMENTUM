@@ -89,3 +89,20 @@ loadData();
 
 // Refresh every 5 minutes (300,000ms)
 setInterval(loadData, 300000);
+const modal = document.getElementById("rulesModal");
+const btn = document.getElementById("rulesBtn");
+const span = document.querySelector(".close-button");
+
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
