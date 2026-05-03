@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Branch Transaction Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>🏆 Branch Transaction Campaign Dashboard</h1>
+    <p>Live Branch Performance Rankings</p>
+</header>
+<div class="cards">
+    <div class="card"><h3>Total Transactions</h3><p id="totalTransactions">0</p></div>
+    <div class="card"><h3>Top Branch</h3><p id="topBranch">-</p></div>
+    <div class="card"><h3>Top Area</h3><p id="topArea">-</p></div>
+</div>
+<section>
+<h2>Branch Leaderboard</h2>
+<table id="leaderboard"><thead><tr><th>Rank</th><th>Branch</th><th>Area</th><th>Transactions</th></tr></thead><tbody></tbody></table>
+</section>
+<section>
+<h2>Area Performance</h2>
+<table id="areaTable"><thead><tr><th>Area</th><th>Total Transactions</th></tr></thead><tbody></tbody></table>
+</section>
+<footer>Auto-refresh every 5 minutes</footer>
+<script src="script.js"></script>
+</body>
+</html>
