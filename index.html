@@ -1,62 +1,367 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Branch Points Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Campaign Scorecard</title>
+    <style>
+        :root {
+            --navy-blue: #001f3f;
+            --navy-dark: #00152b;
+            --fluorescent-green: #39FF14;
+            --fluorescent-cyan: #00FFFF;
+            --white: #ffffff;
+            --gray-text: #b0b0b0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        /* Header Style */
+        header {
+            background-color: var(--navy-blue);
+            color: var(--white);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 4px solid var(--fluorescent-cyan);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .rules-btn {
+            margin-top: 15px;
+            background: transparent;
+            color: var(--fluorescent-cyan);
+            border: 2px solid var(--fluorescent-cyan);
+            padding: 8px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .rules-btn:hover {
+            background: var(--fluorescent-cyan);
+            color: var(--navy-blue);
+        }
+
+        /* Top Cards Section */
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background-color: var(--navy-blue);
+            color: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            width: 260px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: var(--fluorescent-cyan);
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            font-size: 13px;
+            color: var(--gray-text);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 42px;
+            font-weight: bold;
+            color: var(--fluorescent-green);
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--fluorescent-cyan);
+            font-weight: 500;
+        }
+
+        /* Table Section */
+        section {
+            padding: 0 40px 40px 40px;
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header h2 {
+            margin: 0;
+            color: var(--navy-blue);
+            font-size: 22px;
+            border-left: 6px solid var(--navy-blue);
+            padding-left: 15px;
+        }
+
+        .table-wrapper {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--navy-blue);
+            color: white;
+        }
+
+        th {
+            padding: 18px;
+            text-align: left;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 15px 18px;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .points-col {
+            font-weight: bold;
+            color: var(--navy-blue);
+            text-align: right;
+        }
+
+        /* Modal / Popup */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.85);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 10px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 650px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: -45px;
+            right: 0;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            display: block;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
+
 <header>
-    <h1>🏆 Branch Points Campaign Dashboard</h1>
-    <p>Live Branch Performance Rankings</p>
-    <button id="rulesBtn" class="rules-button">📜 View Campaign Rules</button>
+    <h1>🏆 Momentum 2026 Scorecard</h1>
+    <button class="rules-btn" id="openRules">CAMPAIGN RULES</button>
 </header>
 
-<div class="cards">
-    <div class="card"><h3>Total Points</h3><p id="totalTransactions">0</p></div>
-    <div class="card"><h3>Top Branch</h3><p id="topBranch">-</p></div>
-    <div class="card"><h3>Top Area</h3><p id="topArea">-</p></div>
+<div class="stats-container">
+    <!-- Day Counter (from A1) -->
+    <div class="stat-card">
+        <h3>Campaign Progress</h3>
+        <div class="stat-value" id="dayValue">0</div>
+        <div class="stat-label">DAY NUMBER</div>
+    </div>
+    <!-- Top Branch (Top Rank) -->
+    <div class="stat-card">
+        <h3>Current Leader</h3>
+        <div class="stat-value" id="topBranchName" style="font-size: 20px;">-</div>
+        <div class="stat-label" id="topBranchPoints">0 Points</div>
+    </div>
+    <!-- Top Area (Aggregated) -->
+    <div class="stat-card">
+        <h3>Best Performing Area</h3>
+        <div class="stat-value" id="topAreaName" style="font-size: 20px;">-</div>
+        <div class="stat-label" id="topAreaPoints">0 Points</div>
+    </div>
 </div>
 
 <section>
-<h2>Branch Leaderboard</h2>
-<table id="leaderboard">
-    <thead>
-        <tr>
-            <th>Rank</th>
-            <th>Branch</th>
-            <th>Area</th>
-            <th>Total Points</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+    <div class="table-header">
+        <h2>Branch Performance Rankings</h2>
+    </div>
+    <div class="table-wrapper">
+        <table id="leaderboard">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Branch Name</th>
+                    <th>Area</th>
+                    <th style="text-align: right;">Total Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- JS will inject rows here -->
+            </tbody>
+        </table>
+    </div>
 </section>
 
-<section>
-<h2>Area Performance</h2>
-<table id="areaTable">
-    <thead>
-        <tr>
-            <th>Area</th>
-            <th>Total Points</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-</section>
-
-<footer>Auto-refresh every 5 minutes</footer>
-
+<!-- Rules Popup -->
 <div id="rulesModal" class="modal">
-  <div class="modal-content">
-    <span class="close-button">&times;</span>
-    <h2>Campaign Rules</h2>
-    <img src="rules-image.jpg" alt="Campaign Rules" style="width:100%; border-radius: 8px; margin-top: 10px;">
-  </div>
+    <div class="modal-content">
+        <span class="close-btn" id="closeRules">&times;</span>
+        <img src="rules-image.jpg" alt="Campaign Rules">
+    </div>
 </div>
 
-<script src="script.js"></script>
+<footer>
+    Auto-refreshing live from Google Sheets • Last update: <span id="lastUpdate">Never</span>
+</footer>
+
+<script>
+    // 1. SETTINGS
+    // Using the /export?format=csv endpoint is vital for direct data fetching
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM/export?format=csv";
+
+    async function loadData() {
+        try {
+            const response = await fetch(CSV_URL);
+            const csvData = await response.text();
+            
+            // Clean up rows
+            const rows = csvData.trim().split('\n').map(r => r.split(','));
+            
+            // 2. EXTRACT CAMPAIGN DAY (From A1 - represented by first row, first column in export)
+            // Note: In some exports, the very first cell is the header. 
+            // If A1 is the header 'Days', we take data from row 2. 
+            // We'll assume A1 is literal numeric day data based on your request.
+            const dayCount = rows[0][0] || "0";
+            document.getElementById('dayValue').innerText = dayCount;
+
+            // 3. PROCESS DATA (Assuming row 1 is header, data starts at row 2)
+            // Structure: Branch (Col 0), Area (Col 1), Points (Col 2)
+            const branchData = [];
+            const areaTotals = {};
+
+            for (let i = 1; i < rows.length; i++) {
+                const branch = rows[i][0]?.trim();
+                const area = rows[i][1]?.trim();
+                const points = parseInt(rows[i][2]) || 0;
+
+                if (branch) {
+                    branchData.push({ branch, area, points });
+                    
+                    // Area Aggregation
+                    if (area) {
+                        areaTotals[area] = (areaTotals[area] || 0) + points;
+                    }
+                }
+            }
+
+            // 4. SORT BY POINTS DESCENDING
+            branchData.sort((a, b) => b.points - a.points);
+
+            // 5. UPDATE "TOP BRANCH" CARD
+            if (branchData.length > 0) {
+                document.getElementById('topBranchName').innerText = branchData[0].branch;
+                document.getElementById('topBranchPoints').innerText = branchData[0].points.toLocaleString() + " POINTS";
+            }
+
+            // 6. UPDATE "TOP AREA" CARD
+            const sortedAreas = Object.entries(areaTotals).sort((a, b) => b[1] - a[1]);
+            if (sortedAreas.length > 0) {
+                document.getElementById('topAreaName').innerText = sortedAreas[0][0];
+                document.getElementById('topAreaPoints').innerText = sortedAreas[0][1].toLocaleString() + " POINTS";
+            }
+
+            // 7. POPULATE MAIN TABLE
+            const tbody = document.querySelector("#leaderboard tbody");
+            tbody.innerHTML = branchData.map((item, index) => `
+                <tr>
+                    <td style="font-weight: bold; color: #555;">#${index + 1}</td>
+                    <td style="font-weight: 600;">${item.branch}</td>
+                    <td style="color: #666;">${item.area}</td>
+                    <td class="points-col">${item.points.toLocaleString()}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('lastUpdate').innerText = new Date().toLocaleTimeString();
+
+        } catch (err) {
+            console.error("Dashboard failed to fetch data:", err);
+        }
+    }
+
+    // --- POPUP HANDLERS ---
+    const modal = document.getElementById("rulesModal");
+    const openBtn = document.getElementById("openRules");
+    const closeBtn = document.getElementById("closeRules");
+
+    openBtn.onclick = () => modal.style.display = "block";
+    closeBtn.onclick = () => modal.style.display = "none";
+    window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; }
+
+    // Start
+    loadData();
+    // Auto-refresh every 5 mins
+    setInterval(loadData, 300000);
+</script>
+
 </body>
 </html>
