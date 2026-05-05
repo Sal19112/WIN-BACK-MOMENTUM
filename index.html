@@ -3,41 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Momentum 2026 - Advanced View</title>
+    <title>Momentum 2026 | Performance Dashboard</title>
     <style>
-        :root { --navy: #001f3f; --neon: #00FFFF; --green: #39FF14; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f5; color: #333; }
+        :root { 
+            --navy-dark: #001529; 
+            --navy-main: #001f3f; 
+            --neon-blue: #00FFFF; 
+            --gold: #FFD700;
+            --green: #39FF14;
+        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: #eef2f7; color: #333; }
         
-        /* Header & Stats */
-        .header { background: var(--navy); color: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--neon); }
-        .stats-bar { display: flex; justify-content: center; gap: 15px; padding: 20px; flex-wrap: wrap; }
-        .stat-card { background: var(--navy); color: white; padding: 15px; border-radius: 10px; min-width: 150px; text-align: center; border-top: 3px solid var(--neon); }
-        .stat-card b { display: block; font-size: 24px; color: var(--green); }
+        /* Professional Header */
+        .header { 
+            background: var(--navy-dark); 
+            color: white; 
+            padding: 25px; 
+            text-align: center; 
+            border-bottom: 4px solid var(--neon-blue);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .header h1 { margin: 0; letter-spacing: 2px; font-weight: 300; font-size: 28px; }
 
-        /* Search Box */
-        .search-container { text-align: center; padding: 10px 20px; }
-        #branchSearch { 
-            width: 90%; max-width: 500px; padding: 12px 20px; border-radius: 25px; 
-            border: 2px solid var(--navy); font-size: 16px; outline: none;
+        /* Top Stats Row */
+        .stats-bar { display: flex; justify-content: center; gap: 20px; padding: 25px; flex-wrap: wrap; }
+        .stat-card { 
+            background: var(--navy-main); 
+            color: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            min-width: 200px; 
+            text-align: center; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .stat-card span { display: block; font-size: 12px; color: var(--neon-blue); text-transform: uppercase; margin-bottom: 8px; }
+        .stat-card b { font-size: 28px; color: var(--green); }
+
+        /* Main Grid Layout */
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: 1.5fr 1fr; 
+            gap: 25px; 
+            padding: 0 25px 40px; 
+            max-width: 1400px; 
+            margin: auto; 
         }
 
-        /* Table Styles */
-        .content { padding: 0 20px 40px; max-width: 1000px; margin: auto; }
-        .table-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: var(--navy); color: white; }
-        th, td { padding: 15px; text-align: left; }
-        
-        .branch-row { cursor: pointer; border-bottom: 1px solid #eee; transition: 0.2s; }
-        .branch-row:hover { background: #f0faff; }
-        
-        /* Corridor View (The Click Action) */
-        .corridor-view { display: none; background: #f9f9f9; border-left: 5px solid var(--neon); }
-        .corridor-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 20px; text-align: center; }
-        .corridor-item span { display: block; font-size: 11px; color: #777; text-transform: uppercase; margin-bottom: 5px; }
-        .corridor-item strong { font-size: 18px; color: var(--navy); }
+        /* Search Bar styling */
+        .search-wrapper { grid-column: span 2; text-align: center; margin-bottom: 10px; }
+        #search { 
+            width: 100%; max-width: 600px; padding: 15px 25px; 
+            border-radius: 30px; border: 1px solid #ccc; font-size: 16px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
 
-        .rank-badge { background: #eee; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 12px; }
+        /* Card/Table Styling */
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .card-header { background: var(--navy-main); color: white; padding: 15px 20px; font-weight: bold; font-size: 18px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9fa; color: #666; font-size: 12px; text-transform: uppercase; padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid #f0f0f0; }
+
+        .branch-row { cursor: pointer; transition: 0.3s; }
+        .branch-row:hover { background: #f0f7ff; }
+
+        /* Symbols */
+        .winner { color: var(--gold); font-size: 18px; margin-right: 5px; }
+        .rank { font-weight: bold; color: var(--navy-main); width: 30px; display: inline-block; }
+
+        /* Corridor View */
+        .corridor-row { display: none; background: #fdfdfd; border-left: 4px solid var(--neon-blue); }
+        .corridor-grid { display: grid; grid-template-columns: repeat(4, 1fr); padding: 15px; text-align: center; gap: 10px; }
+        .corridor-box span { display: block; font-size: 10px; color: #999; text-transform: uppercase; }
+        .corridor-box strong { font-size: 16px; color: var(--navy-main); }
+
+        @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } .search-wrapper { grid-column: span 1; } }
     </style>
 </head>
 <body>
@@ -48,17 +89,18 @@
 
 <div class="stats-bar">
     <div class="stat-card"><span>CAMPAIGN DAY</span><b id="dayVal">0</b></div>
-    <div class="stat-card"><span>TOTAL SCORE</span><b id="totalPoints">0</b></div>
-    <div class="stat-card"><span>LEADER</span><b id="topBName">-</b></div>
+    <div class="stat-card"><span>TOTAL POINTS</span><b id="totalPoints">0</b></div>
 </div>
 
-<div class="search-container">
-    <input type="text" id="branchSearch" placeholder="Search by Branch or Area..." onkeyup="filterTable()">
-</div>
+<div class="dashboard-grid">
+    <div class="search-wrapper">
+        <input type="text" id="search" placeholder="Search branch or area..." onkeyup="filterData()">
+    </div>
 
-<div class="content">
-    <div class="table-card">
-        <table id="leaderboard">
+    <!-- LEFT: Branch Scorecard -->
+    <div class="card">
+        <div class="card-header">Branch Performance</div>
+        <table id="branchTable">
             <thead>
                 <tr>
                     <th>Rank</th>
@@ -67,105 +109,120 @@
                     <th style="text-align:right;">Points</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                <!-- Data will load here -->
-            </tbody>
+            <tbody id="branchBody"></tbody>
+        </table>
+    </div>
+
+    <!-- RIGHT: Area Scorecard -->
+    <div class="card">
+        <div class="card-header">Area Performance</div>
+        <table id="areaTable">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Area</th>
+                    <th style="text-align:right;">Total Points</th>
+                </tr>
+            </thead>
+            <tbody id="areaBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    var SHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
-    var DATA_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=0";
+    const SHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
+    const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 
-    function fetchData() {
-        fetch(DATA_URL + "&t=" + new Date().getTime())
-            .then(function(res) { return res.text(); })
-            .then(function(csv) {
-                var rows = csv.split(/\r?\n/).map(function(r) {
-                    return r.split(',').map(function(c) { return c.replace(/^"(.*)"$/, '$1').trim(); });
-                });
-
+    function updateDashboard() {
+        fetch(URL + "&t=" + new Date().getTime())
+            .then(res => res.text())
+            .then(csv => {
+                const rows = csv.split(/\r?\n/).map(r => r.split(',').map(c => c.replace(/^"(.*)"$/, '$1').trim()));
                 document.getElementById('dayVal').innerText = rows[0][0] || "0";
 
-                var list = [];
-                var total = 0;
+                let branches = [];
+                let areas = {};
+                let grandTotal = 0;
 
-                for (var i = 2; i < rows.length; i++) {
-                    var name = rows[i][0];
+                for (let i = 2; i < rows.length; i++) {
+                    let name = rows[i][0];
                     if (!name || name.toUpperCase() === "BRANCH") continue;
 
-                    var pts = parseInt(rows[i][2]) || 0;
-                    list.push({
-                        name: name,
-                        area: rows[i][1] || "N/A",
-                        pts: pts,
-                        today: rows[i][3] || "0",
-                        india: rows[i][4] || "0",
-                        bdesh: rows[i][5] || "0",
-                        egypt: rows[i][6] || "0"
+                    let areaName = rows[i][1] || "Other";
+                    let pts = parseInt(rows[i][2]) || 0;
+
+                    branches.push({
+                        name, area: areaName, pts,
+                        today: rows[i][3] || "0", india: rows[i][4] || "0",
+                        bdesh: rows[i][5] || "0", egypt: rows[i][6] || "0"
                     });
-                    total += pts;
+
+                    areas[areaName] = (areas[areaName] || 0) + pts;
+                    grandTotal += pts;
                 }
 
-                list.sort(function(a, b) { return b.pts - a.pts; });
-                document.getElementById('totalPoints').innerText = total.toLocaleString();
-                if(list.length > 0) document.getElementById('topBName').innerText = list[0].name;
+                branches.sort((a,b) => b.pts - a.pts);
+                const sortedAreas = Object.keys(areas).map(k => ({name: k, pts: areas[k]})).sort((a,b) => b.pts - a.pts);
 
-                renderTable(list);
+                document.getElementById('totalPoints').innerText = grandTotal.toLocaleString();
+                renderBranches(branches);
+                renderAreas(sortedAreas);
             });
     }
 
-    function renderTable(data) {
-        var html = "";
-        for (var j = 0; j < data.length; j++) {
-            var b = data[j];
-            var rowId = "detail-" + j;
-            html += '<tr class="branch-row" onclick="toggleCorridor(\'' + rowId + '\')">';
-            html += '<td><span class="rank-badge">#' + (j + 1) + '</span></td>';
-            html += '<td><strong>' + b.name + '</strong></td>';
-            html += '<td>' + b.area + '</td>';
-            html += '<td style="text-align:right;"><strong>' + b.pts + '</strong></td>';
-            html += '</tr>';
-            
-            // Corridor View Row
-            html += '<tr id="' + rowId + '" class="corridor-view"><td colspan="4">';
-            html += '<div class="corridor-grid">';
-            html += '<div class="corridor-item"><span>Today</span><strong>' + b.today + '</strong></div>';
-            html += '<div class="corridor-item"><span>India</span><strong>' + b.india + '</strong></div>';
-            html += '<div class="corridor-item"><span>B-Desh</span><strong>' + b.bdesh + '</strong></div>';
-            html += '<div class="corridor-item"><span>Egypt</span><strong>' + b.egypt + '</strong></div>';
-            html += '</div></td></tr>';
-        }
-        document.getElementById("tableBody").innerHTML = html;
+    function renderBranches(data) {
+        let html = "";
+        data.forEach((b, i) => {
+            let trophy = (i === 0) ? '<span class="winner">🏆</span>' : '';
+            html += `<tr class="branch-row" onclick="toggleDetails('det-${i}')">
+                <td><span class="rank">${i+1}</span></td>
+                <td>${trophy}<strong>${b.name}</strong></td>
+                <td>${b.area}</td>
+                <td style="text-align:right;"><strong>${b.pts}</strong></td>
+            </tr>
+            <tr id="det-${i}" class="corridor-row">
+                <td colspan="4">
+                    <div class="corridor-grid">
+                        <div class="corridor-box"><span>Today</span><strong>${b.today}</strong></div>
+                        <div class="corridor-box"><span>India</span><strong>${b.india}</strong></div>
+                        <div class="corridor-box"><span>B-Desh</span><strong>${b.bdesh}</strong></div>
+                        <div class="corridor-box"><span>Egypt</span><strong>${b.egypt}</strong></div>
+                    </div>
+                </td>
+            </tr>`;
+        });
+        document.getElementById('branchBody').innerHTML = html;
     }
 
-    function toggleCorridor(id) {
-        var el = document.getElementById(id);
-        var isVisible = el.style.display === "table-row";
-        
-        // Hide all first
-        var all = document.querySelectorAll('.corridor-view');
-        for (var i = 0; i < all.length; i++) { all[i].style.display = 'none'; }
-
-        el.style.display = isVisible ? "none" : "table-row";
+    function renderAreas(data) {
+        let html = "";
+        data.forEach((a, i) => {
+            let trophy = (i === 0) ? '<span class="winner">🏆</span>' : '';
+            html += `<tr>
+                <td><span class="rank">${i+1}</span></td>
+                <td>${trophy}${a.name}</td>
+                <td style="text-align:right;"><strong>${a.pts.toLocaleString()}</strong></td>
+            </tr>`;
+        });
+        document.getElementById('areaBody').innerHTML = html;
     }
 
-    function filterTable() {
-        var input = document.getElementById("branchSearch").value.toLowerCase();
-        var rows = document.getElementById("tableBody").getElementsByClassName("branch-row");
-        
-        for (var i = 0; i < rows.length; i++) {
-            var text = rows[i].innerText.toLowerCase();
-            rows[i].style.display = text.indexOf(input) > -1 ? "" : "none";
-            // Hide detail row if parent is hidden
-            var detailId = "detail-" + i;
-            if (document.getElementById(detailId)) document.getElementById(detailId).style.display = "none";
-        }
+    function toggleDetails(id) {
+        let el = document.getElementById(id);
+        let show = el.style.display === "table-row";
+        document.querySelectorAll('.corridor-row').forEach(r => r.style.display = 'none');
+        el.style.display = show ? "none" : "table-row";
     }
 
-    fetchData();
-    setInterval(fetchData, 300000); // Auto-refresh every 5 mins
+    function filterData() {
+        let term = document.getElementById('search').value.toLowerCase();
+        document.querySelectorAll('#branchBody .branch-row').forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(term) ? "" : "none";
+        });
+    }
+
+    updateDashboard();
+    setInterval(updateDashboard, 300000);
 </script>
 
 </body>
