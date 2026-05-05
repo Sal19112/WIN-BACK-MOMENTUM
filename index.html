@@ -1,29 +1,26 @@
 <script>
-    // Link to your new sheet export
+    // 1. Direct CSV Export Link (No Proxy Needed)
+    // Using /pub?output=csv is much more stable for GitHub Pages
     var SHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
     var FINAL_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=0";
 
     function refreshData() {
-        // Adding a timestamp to the URL to force Google to give us FRESH data
-        var cacheBuster = FINAL_URL + "&t=" + new Date().getTime();
-
-        fetch(cacheBuster)
-            .then(function(res) { return res.text(); })
+        // Fetching directly from Google
+        fetch(FINAL_URL)
+            .then(function(res) { 
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.text(); 
+            })
             .then(function(csvText) {
-                // Split rows and handle potential carriage returns
-                var rows = csvText.split(/\r?\n/).map(function(row) {
+                // Split by lines and remove quotes
+                var rows = csvText.split('\n').map(function(row) {
                     return row.split(',').map(function(cell) {
                         return cell.replace(/^"(.*)"$/, '$1').trim();
                     });
                 });
 
-                // --- DEBUG: If you still see 0, press F12 and look at this log ---
-                console.log("Raw Data Received:", rows);
-
-                // Day Count Check (A1 or B1)
-                var day = rows[0][0];
-                if (!day || isNaN(day)) day = rows[0][1]; 
-                document.getElementById('dayVal').innerText = day || "0";
+                // A1 = Day Count
+                document.getElementById('dayVal').innerText = rows[0][0] || "0";
 
                 var branchList = [];
                 var grandTotal = 0;
@@ -31,9 +28,7 @@
                 // Loop starts at Row 3 (Index 2)
                 for (var i = 2; i < rows.length; i++) {
                     var bName = rows[i][0];
-                    
-                    // Skip if name is empty or is just the header word "BRANCH"
-                    if (!bName || bName.toUpperCase() === "BRANCH" || bName === "") continue;
+                    if (!bName || bName === "BRANCH" || bName === "") continue;
 
                     var data = {
                         name: bName,
@@ -48,17 +43,16 @@
                     grandTotal += data.pts;
                 }
 
-                // Sort and Update UI
+                // Sort by Points
                 branchList.sort(function(a, b) { return b.pts - a.pts; });
 
+                // Update Header
                 if (branchList.length > 0) {
                     document.getElementById('topBName').innerText = branchList[0].name;
-                } else {
-                    document.getElementById('topBName').innerText = "No Data";
                 }
-                
                 document.getElementById('totalPoints').innerText = grandTotal.toLocaleString();
 
+                // Generate Table
                 var tbody = document.querySelector("#leaderboard tbody");
                 var html = "";
                 for (var j = 0; j < branchList.length; j++) {
@@ -81,7 +75,9 @@
                 tbody.innerHTML = html;
             })
             .catch(function(err) {
-                console.error("Fetch Error:", err);
+                console.error("Dashboard Load Error: ", err);
+                // If it fails, it's likely a Permission issue
+                alert("Please ensure the Google Sheet is set to 'Anyone with the link can view'");
             });
     }
 
