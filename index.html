@@ -3,226 +3,732 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Momentum 2026 | Performance Dashboard</title>
+    <title>Momentum 2026 — Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --navy-dark: #001529; 
-            --navy-main: #001f3f; 
-            --neon-blue: #00FFFF; 
-            --gold: #FFD700;
-            --green: #39FF14;
-        }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: #eef2f7; color: #333; }
-        
-        /* Professional Header */
-        .header { 
-            background: var(--navy-dark); 
-            color: white; 
-            padding: 25px; 
-            text-align: center; 
-            border-bottom: 4px solid var(--neon-blue);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        .header h1 { margin: 0; letter-spacing: 2px; font-weight: 300; font-size: 28px; }
-
-        /* Top Stats Row */
-        .stats-bar { display: flex; justify-content: center; gap: 20px; padding: 25px; flex-wrap: wrap; }
-        .stat-card { 
-            background: var(--navy-main); 
-            color: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            min-width: 200px; 
-            text-align: center; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .stat-card span { display: block; font-size: 12px; color: var(--neon-blue); text-transform: uppercase; margin-bottom: 8px; }
-        .stat-card b { font-size: 28px; color: var(--green); }
-
-        /* Main Grid Layout */
-        .dashboard-grid { 
-            display: grid; 
-            grid-template-columns: 1.5fr 1fr; 
-            gap: 25px; 
-            padding: 0 25px 40px; 
-            max-width: 1400px; 
-            margin: auto; 
+        :root {
+            --navy-deepest: #010e1f;
+            --navy-deep:    #021629;
+            --navy-dark:    #03243f;
+            --navy-mid:     #073b60;
+            --navy-light:   #0f5a8c;
+            --navy-lighter: #1a7ab8;
+            --accent-cyan:  #00c8e8;
+            --accent-gold:  #ffc107;
+            --accent-green: #00e676;
+            --accent-red:   #ff4757;
+            --glass:        rgba(255,255,255,0.04);
+            --glass-border: rgba(0,200,232,0.18);
+            --text-primary: #e8f4fd;
+            --text-muted:   #7aabc8;
+            --text-dim:     #3d6f8e;
         }
 
-        /* Search Bar styling */
-        .search-wrapper { grid-column: span 2; text-align: center; margin-bottom: 10px; }
-        #search { 
-            width: 100%; max-width: 600px; padding: 15px 25px; 
-            border-radius: 30px; border: 1px solid #ccc; font-size: 16px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--navy-deepest);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at 10% 0%, rgba(0,200,232,0.07) 0%, transparent 55%),
+                radial-gradient(ellipse at 90% 100%, rgba(15,90,140,0.12) 0%, transparent 55%);
         }
 
-        /* Card/Table Styling */
-        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-        .card-header { background: var(--navy-main); color: white; padding: 15px 20px; font-weight: bold; font-size: 18px; }
-        
+        /* ── HEADER ── */
+        .header {
+            background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy-dark) 100%);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--navy-lighter));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-icon svg { width: 22px; height: 22px; fill: var(--navy-deepest); }
+        .header h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--text-primary);
+        }
+        .header h1 span { color: var(--accent-cyan); }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(0,230,118,0.1);
+            border: 1px solid rgba(0,230,118,0.3);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 12px;
+            color: var(--accent-green);
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        .live-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse-dot 1.5s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        /* ── STAT CARDS ── */
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            padding: 24px 30px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            flex: 1;
+            min-width: 160px;
+            background: var(--navy-dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 18px 22px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--navy-lighter));
+            border-radius: 14px 14px 0 0;
+        }
+        .stat-card:hover { transform: translateY(-2px); border-color: rgba(0,200,232,0.35); }
+        .stat-label {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            line-height: 1;
+        }
+        .stat-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+
+        /* ── SEARCH ── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 30px 20px;
+            flex-wrap: wrap;
+        }
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+            max-width: 420px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+        }
+        #branchSearch {
+            width: 100%;
+            padding: 11px 16px 11px 40px;
+            background: var(--navy-dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #branchSearch::placeholder { color: var(--text-dim); }
+        #branchSearch:focus { border-color: var(--accent-cyan); }
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+        }
+        .toggle-btn {
+            padding: 9px 18px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .toggle-btn.active {
+            background: var(--accent-cyan);
+            color: var(--navy-deepest);
+            border-color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        /* ── LAYOUT GRID ── */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px;
+            padding: 0 30px 40px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── PANELS ── */
+        .panel {
+            background: var(--navy-dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .panel-header {
+            padding: 16px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0,200,232,0.1);
+            background: rgba(0,0,0,0.2);
+        }
+        .panel-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+        }
+        .panel-count {
+            font-size: 12px;
+            color: var(--text-dim);
+            background: rgba(0,200,232,0.08);
+            border: 1px solid var(--glass-border);
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        /* ── BRANCH TABLE ── */
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8f9fa; color: #666; font-size: 12px; text-transform: uppercase; padding: 15px; text-align: left; }
-        td { padding: 15px; border-bottom: 1px solid #f0f0f0; }
+        .th-row th {
+            padding: 11px 18px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 1px solid rgba(0,200,232,0.08);
+        }
+        .th-row th.right { text-align: right; }
 
-        .branch-row { cursor: pointer; transition: 0.3s; }
-        .branch-row:hover { background: #f0f7ff; }
+        .branch-row {
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.15s;
+        }
+        .branch-row:hover { background: rgba(0,200,232,0.05); }
+        .branch-row td { padding: 13px 18px; font-size: 14px; }
+        .branch-row td.right { text-align: right; }
 
-        /* Symbols */
-        .winner { color: var(--gold); font-size: 18px; margin-right: 5px; }
-        .rank { font-weight: bold; color: var(--navy-main); width: 30px; display: inline-block; }
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 30px;
+            height: 26px;
+            border-radius: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            background: rgba(0,200,232,0.1);
+            border: 1px solid rgba(0,200,232,0.2);
+            color: var(--text-muted);
+        }
+        .rank-badge.gold {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: var(--accent-gold);
+        }
+        .rank-badge.silver {
+            background: rgba(192,192,192,0.12);
+            border-color: rgba(192,192,192,0.3);
+            color: #c0c0c0;
+        }
+        .rank-badge.bronze {
+            background: rgba(205,127,50,0.12);
+            border-color: rgba(205,127,50,0.3);
+            color: #cd7f32;
+        }
 
-        /* Corridor View */
-        .corridor-row { display: none; background: #fdfdfd; border-left: 4px solid var(--neon-blue); }
-        .corridor-grid { display: grid; grid-template-columns: repeat(4, 1fr); padding: 15px; text-align: center; gap: 10px; }
-        .corridor-box span { display: block; font-size: 10px; color: #999; text-transform: uppercase; }
-        .corridor-box strong { font-size: 16px; color: var(--navy-main); }
+        .winner-crown {
+            display: inline-flex;
+            margin-right: 6px;
+            font-size: 14px;
+        }
+        .branch-name { font-weight: 500; color: var(--text-primary); }
+        .area-tag {
+            display: inline-block;
+            font-size: 11px;
+            color: var(--text-dim);
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            padding: 2px 7px;
+            margin-top: 2px;
+        }
+        .pts-val {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+        .pts-val.gold-pts { color: var(--accent-gold); }
 
-        @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } .search-wrapper { grid-column: span 1; } }
+        /* ── CORRIDOR DETAIL ── */
+        .corridor-row { display: none; border-bottom: 1px solid rgba(0,200,232,0.1); }
+        .corridor-inner {
+            padding: 16px 22px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            background: rgba(0,0,0,0.25);
+            border-left: 3px solid var(--accent-cyan);
+        }
+        .cor-item {
+            text-align: center;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 12px 8px;
+        }
+        .cor-label {
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .cor-val {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ── AREA SCORECARD (RIGHT PANEL) ── */
+        .area-list { padding: 8px 0; }
+        .area-item {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            cursor: pointer;
+            transition: background 0.15s;
+            position: relative;
+        }
+        .area-item:hover { background: rgba(0,200,232,0.05); }
+        .area-item:last-child { border-bottom: none; }
+        .area-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .area-name-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .area-rank {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .area-rank.a-gold { background: rgba(255,193,7,0.15); color: var(--accent-gold); border: 1px solid rgba(255,193,7,0.3); }
+        .area-rank.a-silver { background: rgba(192,192,192,0.1); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.25); }
+        .area-rank.a-bronze { background: rgba(205,127,50,0.1); color: #cd7f32; border: 1px solid rgba(205,127,50,0.25); }
+        .area-rank.a-normal { background: rgba(0,200,232,0.08); color: var(--text-dim); border: 1px solid var(--glass-border); }
+        .area-crown { font-size: 13px; }
+        .area-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .area-pts-total {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .area-pts-total.first-area { color: var(--accent-gold); }
+        .area-pts-total.other-area { color: var(--accent-cyan); }
+        .area-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+        .progress-bar-wrap {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--navy-lighter), var(--accent-cyan));
+            transition: width 0.8s ease;
+        }
+        .progress-fill.first-fill { background: linear-gradient(90deg, #e6a000, var(--accent-gold)); }
+
+        /* ── FOOTER ── */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+            border-top: 1px solid rgba(0,200,232,0.06);
+        }
+        .footer span { color: var(--accent-cyan); }
+
+        /* ── SKELETON LOADER ── */
+        .skeleton-row { animation: shimmer 1.5s infinite; }
+        .skeleton-cell { height: 14px; background: rgba(255,255,255,0.06); border-radius: 4px; }
+        @keyframes shimmer {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* DIVIDER */
+        .section-divider {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            padding: 8px 18px;
+            background: rgba(0,0,0,0.15);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>WIN BACK - MOMENTUM 2026</h1>
-</div>
-
-<div class="stats-bar">
-    <div class="stat-card"><span>CAMPAIGN DAY</span><b id="dayVal">0</b></div>
-    <div class="stat-card"><span>TOTAL POINTS</span><b id="totalPoints">0</b></div>
-</div>
-
-<div class="dashboard-grid">
-    <div class="search-wrapper">
-        <input type="text" id="search" placeholder="Search branch or area..." onkeyup="filterData()">
+<!-- HEADER -->
+<header class="header">
+    <div class="header-logo">
+        <div class="logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div>
+            <h1>WIN BACK <span>·</span> MOMENTUM <span>2026</span></h1>
+        </div>
     </div>
+    <div class="header-right">
+        <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    </div>
+</header>
 
-    <!-- LEFT: Branch Scorecard -->
-    <div class="card">
-        <div class="card-header">Branch Performance</div>
-        <table id="branchTable">
+<!-- STAT CARDS -->
+<div class="stats-bar">
+    <div class="stat-card">
+        <div class="stat-label">Campaign Day</div>
+        <div class="stat-value" id="dayVal">—</div>
+        <div class="stat-sub">Days active</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Score</div>
+        <div class="stat-value" id="totalPoints">—</div>
+        <div class="stat-sub">Combined points</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">🏆 Branch Leader</div>
+        <div class="stat-value" id="topBName" style="font-size:20px;">—</div>
+        <div class="stat-sub" id="topBPts">—</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">🏆 Area Leader</div>
+        <div class="stat-value" id="topAName" style="font-size:20px;">—</div>
+        <div class="stat-sub" id="topAPts">—</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Participating</div>
+        <div class="stat-value" id="branchCount">—</div>
+        <div class="stat-sub">Branches</div>
+    </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+    <div class="search-wrap">
+        <span class="search-icon">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+        </span>
+        <input type="text" id="branchSearch" placeholder="Search branch or area..." onkeyup="filterTable()">
+    </div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="main-grid">
+
+    <!-- LEFT: Branch Leaderboard -->
+    <div class="panel">
+        <div class="panel-header">
+            <span class="panel-title">Branch Leaderboard</span>
+            <span class="panel-count" id="branchCountBadge">Loading…</span>
+        </div>
+        <table id="leaderboard">
             <thead>
-                <tr>
-                    <th>Rank</th>
+                <tr class="th-row">
+                    <th style="width:56px;">Rank</th>
                     <th>Branch</th>
-                    <th>Area</th>
-                    <th style="text-align:right;">Points</th>
+                    <th class="right" style="width:100px;">Points</th>
                 </tr>
             </thead>
-            <tbody id="branchBody"></tbody>
+            <tbody id="tableBody">
+                <tr class="skeleton-row"><td colspan="3" style="padding:20px 18px;"><div class="skeleton-cell"></div></td></tr>
+                <tr class="skeleton-row"><td colspan="3" style="padding:20px 18px;"><div class="skeleton-cell" style="width:75%;"></div></td></tr>
+                <tr class="skeleton-row"><td colspan="3" style="padding:20px 18px;"><div class="skeleton-cell" style="width:60%;"></div></td></tr>
+            </tbody>
         </table>
     </div>
 
     <!-- RIGHT: Area Scorecard -->
-    <div class="card">
-        <div class="card-header">Area Performance</div>
-        <table id="areaTable">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Area</th>
-                    <th style="text-align:right;">Total Points</th>
-                </tr>
-            </thead>
-            <tbody id="areaBody"></tbody>
-        </table>
+    <div class="panel">
+        <div class="panel-header">
+            <span class="panel-title">Area Scorecard</span>
+            <span class="panel-count" id="areaCountBadge">—</span>
+        </div>
+        <div class="area-list" id="areaList">
+            <div style="padding:30px; text-align:center; color:var(--text-dim); font-size:13px;">Loading areas…</div>
+        </div>
     </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    Auto-refreshes every <span>5 minutes</span> · Data from Google Sheets · Momentum 2026
 </div>
 
 <script>
-    const SHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
-    const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+    var SHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
+    var DATA_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=0";
 
-    function updateDashboard() {
-        fetch(URL + "&t=" + new Date().getTime())
-            .then(res => res.text())
-            .then(csv => {
-                const rows = csv.split(/\r?\n/).map(r => r.split(',').map(c => c.replace(/^"(.*)"$/, '$1').trim()));
-                document.getElementById('dayVal').innerText = rows[0][0] || "0";
+    var allBranches = [];
 
-                let branches = [];
-                let areas = {};
-                let grandTotal = 0;
+    function fetchData() {
+        fetch(DATA_URL + "&t=" + new Date().getTime())
+            .then(function(res) { return res.text(); })
+            .then(function(csv) {
+                var rows = csv.split(/\r?\n/).map(function(r) {
+                    return r.split(',').map(function(c) { return c.replace(/^"(.*)"$/, '$1').trim(); });
+                });
 
-                for (let i = 2; i < rows.length; i++) {
-                    let name = rows[i][0];
+                document.getElementById('dayVal').innerText = rows[0] && rows[0][0] ? rows[0][0] : "0";
+
+                var list = [];
+                var total = 0;
+
+                for (var i = 2; i < rows.length; i++) {
+                    var name = rows[i][0];
                     if (!name || name.toUpperCase() === "BRANCH") continue;
 
-                    let areaName = rows[i][1] || "Other";
-                    let pts = parseInt(rows[i][2]) || 0;
-
-                    branches.push({
-                        name, area: areaName, pts,
-                        today: rows[i][3] || "0", india: rows[i][4] || "0",
-                        bdesh: rows[i][5] || "0", egypt: rows[i][6] || "0"
+                    var pts = parseInt(rows[i][2]) || 0;
+                    list.push({
+                        name: name,
+                        area: rows[i][1] || "N/A",
+                        pts: pts,
+                        today: rows[i][3] || "0",
+                        india: rows[i][4] || "0",
+                        bdesh: rows[i][5] || "0",
+                        egypt: rows[i][6] || "0"
                     });
-
-                    areas[areaName] = (areas[areaName] || 0) + pts;
-                    grandTotal += pts;
+                    total += pts;
                 }
 
-                branches.sort((a,b) => b.pts - a.pts);
-                const sortedAreas = Object.keys(areas).map(k => ({name: k, pts: areas[k]})).sort((a,b) => b.pts - a.pts);
+                list.sort(function(a, b) { return b.pts - a.pts; });
+                allBranches = list;
 
-                document.getElementById('totalPoints').innerText = grandTotal.toLocaleString();
-                renderBranches(branches);
-                renderAreas(sortedAreas);
+                document.getElementById('totalPoints').innerText = total.toLocaleString();
+                document.getElementById('branchCount').innerText = list.length;
+                document.getElementById('branchCountBadge').innerText = list.length + " branches";
+
+                if (list.length > 0) {
+                    document.getElementById('topBName').innerText = list[0].name;
+                    document.getElementById('topBPts').innerText = list[0].pts.toLocaleString() + " pts";
+                }
+
+                renderTable(list);
+                renderAreas(list);
+            })
+            .catch(function() {
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="3" style="padding:30px;text-align:center;color:var(--accent-red);">Unable to load data. Check connection.</td></tr>';
             });
     }
 
-    function renderBranches(data) {
-        let html = "";
-        data.forEach((b, i) => {
-            let trophy = (i === 0) ? '<span class="winner">🏆</span>' : '';
-            html += `<tr class="branch-row" onclick="toggleDetails('det-${i}')">
-                <td><span class="rank">${i+1}</span></td>
-                <td>${trophy}<strong>${b.name}</strong></td>
-                <td>${b.area}</td>
-                <td style="text-align:right;"><strong>${b.pts}</strong></td>
-            </tr>
-            <tr id="det-${i}" class="corridor-row">
-                <td colspan="4">
-                    <div class="corridor-grid">
-                        <div class="corridor-box"><span>Today</span><strong>${b.today}</strong></div>
-                        <div class="corridor-box"><span>India</span><strong>${b.india}</strong></div>
-                        <div class="corridor-box"><span>B-Desh</span><strong>${b.bdesh}</strong></div>
-                        <div class="corridor-box"><span>Egypt</span><strong>${b.egypt}</strong></div>
-                    </div>
-                </td>
-            </tr>`;
-        });
-        document.getElementById('branchBody').innerHTML = html;
+    function getRankClass(j) {
+        if (j === 0) return 'gold';
+        if (j === 1) return 'silver';
+        if (j === 2) return 'bronze';
+        return '';
+    }
+
+    function renderTable(data) {
+        var html = "";
+        for (var j = 0; j < data.length; j++) {
+            var b = data[j];
+            var rowId = "detail-" + j;
+            var rankCls = getRankClass(j);
+            var isFirst = j === 0;
+
+            html += '<tr class="branch-row" onclick="toggleCorridor(\'' + rowId + '\')">';
+            html += '<td><span class="rank-badge ' + rankCls + '">';
+            if (isFirst) html += '★';
+            else html += '#' + (j + 1);
+            html += '</span></td>';
+
+            html += '<td>';
+            if (isFirst) html += '<span class="winner-crown">👑</span>';
+            html += '<span class="branch-name">' + b.name + '</span>';
+            html += '<br><span class="area-tag">' + b.area + '</span>';
+            html += '</td>';
+
+            html += '<td class="right"><span class="pts-val' + (isFirst ? ' gold-pts' : '') + '">' + b.pts.toLocaleString() + '</span></td>';
+            html += '</tr>';
+
+            html += '<tr id="' + rowId + '" class="corridor-row"><td colspan="3">';
+            html += '<div class="corridor-inner">';
+            html += '<div class="cor-item"><div class="cor-label">Today</div><div class="cor-val">' + b.today + '</div></div>';
+            html += '<div class="cor-item"><div class="cor-label">India</div><div class="cor-val">' + b.india + '</div></div>';
+            html += '<div class="cor-item"><div class="cor-label">B-Desh</div><div class="cor-val">' + b.bdesh + '</div></div>';
+            html += '<div class="cor-item"><div class="cor-label">Egypt</div><div class="cor-val">' + b.egypt + '</div></div>';
+            html += '</div></td></tr>';
+        }
+        document.getElementById("tableBody").innerHTML = html || '<tr><td colspan="3" style="padding:30px;text-align:center;color:var(--text-dim);">No data available.</td></tr>';
     }
 
     function renderAreas(data) {
-        let html = "";
-        data.forEach((a, i) => {
-            let trophy = (i === 0) ? '<span class="winner">🏆</span>' : '';
-            html += `<tr>
-                <td><span class="rank">${i+1}</span></td>
-                <td>${trophy}${a.name}</td>
-                <td style="text-align:right;"><strong>${a.pts.toLocaleString()}</strong></td>
-            </tr>`;
-        });
-        document.getElementById('areaBody').innerHTML = html;
+        // Aggregate by area
+        var areaMap = {};
+        for (var i = 0; i < data.length; i++) {
+            var b = data[i];
+            if (!areaMap[b.area]) {
+                areaMap[b.area] = { name: b.area, total: 0, count: 0, topBranch: b.name, topPts: b.pts };
+            }
+            areaMap[b.area].total += b.pts;
+            areaMap[b.area].count++;
+        }
+
+        var areas = Object.values(areaMap);
+        areas.sort(function(a, b) { return b.total - a.total; });
+
+        document.getElementById('areaCountBadge').innerText = areas.length + " areas";
+
+        if (areas.length > 0) {
+            document.getElementById('topAName').innerText = areas[0].name;
+            document.getElementById('topAPts').innerText = areas[0].total.toLocaleString() + " pts";
+        }
+
+        var maxPts = areas.length > 0 ? areas[0].total : 1;
+
+        var html = "";
+        for (var j = 0; j < areas.length; j++) {
+            var a = areas[j];
+            var pct = Math.round((a.total / maxPts) * 100);
+            var isFirst = j === 0;
+            var rankCls2 = j === 0 ? 'a-gold' : j === 1 ? 'a-silver' : j === 2 ? 'a-bronze' : 'a-normal';
+
+            html += '<div class="area-item">';
+            html += '<div class="area-top">';
+            html += '<div class="area-name-wrap">';
+            html += '<div class="area-rank ' + rankCls2 + '">';
+            if (isFirst) html += '★';
+            else html += (j + 1);
+            html += '</div>';
+            if (isFirst) html += '<span class="area-crown">👑</span>';
+            html += '<span class="area-name">' + a.name + '</span>';
+            html += '</div>';
+            html += '<span class="area-pts-total ' + (isFirst ? 'first-area' : 'other-area') + '">' + a.total.toLocaleString() + '</span>';
+            html += '</div>';
+            html += '<div class="area-meta">';
+            html += '<span>' + a.count + ' branches</span>';
+            html += '<div class="progress-bar-wrap"><div class="progress-fill ' + (isFirst ? 'first-fill' : '') + '" style="width:' + pct + '%"></div></div>';
+            html += '<span>' + pct + '%</span>';
+            html += '</div>';
+            html += '</div>';
+        }
+
+        document.getElementById("areaList").innerHTML = html || '<div style="padding:30px;text-align:center;color:var(--text-dim);font-size:13px;">No area data.</div>';
     }
 
-    function toggleDetails(id) {
-        let el = document.getElementById(id);
-        let show = el.style.display === "table-row";
-        document.querySelectorAll('.corridor-row').forEach(r => r.style.display = 'none');
-        el.style.display = show ? "none" : "table-row";
+    function toggleCorridor(id) {
+        var el = document.getElementById(id);
+        var isVisible = el.style.display === "table-row";
+        var all = document.querySelectorAll('.corridor-row');
+        for (var i = 0; i < all.length; i++) { all[i].style.display = 'none'; }
+        el.style.display = isVisible ? "none" : "table-row";
     }
 
-    function filterData() {
-        let term = document.getElementById('search').value.toLowerCase();
-        document.querySelectorAll('#branchBody .branch-row').forEach(row => {
-            row.style.display = row.innerText.toLowerCase().includes(term) ? "" : "none";
-        });
+    function filterTable() {
+        var input = document.getElementById("branchSearch").value.toLowerCase();
+        var rows = document.getElementById("tableBody").getElementsByClassName("branch-row");
+        for (var i = 0; i < rows.length; i++) {
+            var text = rows[i].innerText.toLowerCase();
+            var show = text.indexOf(input) > -1;
+            rows[i].style.display = show ? "" : "none";
+            var detailEl = document.getElementById("detail-" + i);
+            if (detailEl) detailEl.style.display = "none";
+        }
     }
 
-    updateDashboard();
-    setInterval(updateDashboard, 300000);
+    fetchData();
+    setInterval(fetchData, 300000);
 </script>
 
 </body>
