@@ -1,80 +1,152 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>A1 Connection Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum 2026 Scorecard</title>
     <style>
-        body { 
-            font-family: sans-serif; 
-            text-align: center; 
-            padding-top: 100px; 
-            background-color: #f4f7f6; 
-        }
-        .test-card {
-            background: white;
-            padding: 50px;
-            border-radius: 20px;
-            display: inline-block;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-top: 8px solid #001f3f;
-        }
-        .label { color: #666; text-transform: uppercase; font-size: 14px; letter-spacing: 2px; }
-        .value { 
-            font-size: 100px; 
-            font-weight: bold; 
-            color: #007bff; 
-            margin: 20px 0;
-        }
-        #status { font-size: 12px; color: #888; margin-top: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: #f4f7f6; color: #333; }
+        .header { background: #001f3f; color: #ffffff; padding: 25px; text-align: center; border-bottom: 5px solid #00FFFF; }
+        .stats-row { display: flex; justify-content: center; gap: 20px; padding: 20px; flex-wrap: wrap; }
+        .stat-card { background: #001f3f; color: white; padding: 15px; border-radius: 12px; min-width: 180px; text-align: center; border-top: 4px solid #00FFFF; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .stat-card span { display: block; font-size: 11px; color: #00FFFF; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-card b { font-size: 26px; color: #39FF14; }
+        section { padding: 0 40px 40px 40px; }
+        .table-wrapper { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #001f3f; color: white; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .branch-row { cursor: pointer; transition: 0.2s; }
+        .branch-row:hover { background: #f0faff; }
+        .details-row { display: none; background: #fafafa; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; text-align: center; border-bottom: 2px solid #001f3f; }
+        .grid div span { display: block; font-size: 10px; color: #888; text-transform: uppercase; }
+        .grid div strong { font-size: 16px; color: #001f3f; }
     </style>
 </head>
 <body>
 
-    <div class="test-card">
-        <div class="label">Value in Cell A1</div>
-        <div id="display" class="value">...</div>
-        <div id="status">Connecting to Google Sheet...</div>
+<div class="header">
+    <h1>WIN BACK - MOMENTUM 2026</h1>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card"><span>Campaign Day</span><b id="dayVal">0</b></div>
+    <div class="stat-card"><span>Top Branch</span><b id="topBName">-</b></div>
+    <div class="stat-card"><span>Total Score</span><b id="totalPoints">0</b></div>
+</div>
+
+<section>
+    <div class="table-wrapper">
+        <table id="leaderboard">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Branch Name</th>
+                    <th>Area</th>
+                    <th style="text-align:right;">Total Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Branch data will load here -->
+            </tbody>
+        </table>
     </div>
+</section>
 
 <script>
-    // Using your confirmed Spreadsheet ID
     var SHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
-    
-    // Direct export link for CSV data
-    var URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=0";
+    var DATA_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=0";
 
-    function runTest() {
-        var display = document.getElementById('display');
-        var status = document.getElementById('status');
+    function refreshData() {
+        fetch(DATA_URL + "&t=" + new Date().getTime())
+            .then(function(res) { return res.text(); })
+            .then(function(csvText) {
+                var rows = csvText.split(/\r?\n/).map(function(row) {
+                    return row.split(',').map(function(cell) {
+                        return cell.replace(/^"(.*)"$/, '$1').trim();
+                    });
+                });
 
-        // fetch with a timestamp to prevent the browser from showing old data
-        fetch(URL + "&t=" + new Date().getTime())
-            .then(function(response) {
-                if (!response.ok) throw new Error("Check Share Settings");
-                return response.text();
-            })
-            .then(function(data) {
-                // Split the data to get the very first cell (A1)
-                var rows = data.split('\n');
-                var firstRow = rows[0].split(',');
-                var a1Value = firstRow[0].replace(/"/g, "").trim();
+                // Set Campaign Day from A1
+                document.getElementById('dayVal').innerText = rows[0][0] || "0";
 
-                if (a1Value !== "") {
-                    display.innerText = a1Value;
-                    display.style.color = "#28a745"; // Green for success
-                    status.innerText = "Successfully connected to your sheet!";
-                } else {
-                    display.innerText = "0";
-                    status.innerText = "Connected, but Cell A1 is empty.";
+                var branchList = [];
+                var grandTotal = 0;
+
+                // Loop starts at Row 3 (Index 2)
+                for (var i = 2; i < rows.length; i++) {
+                    var bName = rows[i][0];
+                    if (!bName || bName.toUpperCase() === "BRANCH" || bName === "") { continue; }
+
+                    var data = {
+                        name: bName,
+                        area: rows[i][1] || "N/A",
+                        pts: parseInt(rows[i][2]) || 0, // Column C
+                        today: rows[i][3] || "0",      // Column D
+                        india: rows[i][4] || "0",      // Column E
+                        bdesh: rows[i][5] || "0",      // Column F
+                        egypt: rows[i][6] || "0"       // Column G
+                    };
+                    branchList.push(data);
+                    grandTotal += data.pts;
                 }
+
+                // Sort by Total Points
+                branchList.sort(function(a, b) { return b.pts - a.pts; });
+
+                // Update Top Stats
+                if (branchList.length > 0) {
+                    document.getElementById('topBName').innerText = branchList[0].name;
+                }
+                document.getElementById('totalPoints').innerText = grandTotal.toLocaleString();
+
+                // Build Table
+                var tbody = document.querySelector("#leaderboard tbody");
+                var tableHTML = "";
+                
+                for (var j = 0; j < branchList.length; j++) {
+                    var b = branchList[j];
+                    var rowID = "row-" + j;
+                    
+                    tableHTML += '<tr class="branch-row" onclick="toggleDetails(\'' + rowID + '\')">';
+                    tableHTML += '<td>#' + (j + 1) + '</td>';
+                    tableHTML += '<td><strong>' + b.name + '</strong></td>';
+                    tableHTML += '<td>' + b.area + '</td>';
+                    tableHTML += '<td style="text-align:right;"><strong>' + b.pts + '</strong></td>';
+                    tableHTML += '</tr>';
+                    
+                    tableHTML += '<tr id="' + rowID + '" class="details-row">';
+                    tableHTML += '<td colspan="4"><div class="grid">';
+                    tableHTML += '<div><span>Today</span><strong>' + b.today + '</strong></div>';
+                    tableHTML += '<div><span>India</span><strong>' + b.india + '</strong></div>';
+                    tableHTML += '<div><span>B-Desh</span><strong>' + b.bdesh + '</strong></div>';
+                    tableHTML += '<div><span>Egypt</span><strong>' + b.egypt + '</strong></div>';
+                    tableHTML += '</div></td></tr>';
+                }
+                tbody.innerHTML = tableHTML;
             })
             .catch(function(err) {
-                display.innerText = "ERR";
-                display.style.color = "#dc3545"; // Red for error
-                status.innerText = "Error: " + err.message + ". Set sheet to 'Anyone with the link'.";
+                console.error("Dashboard Load Error: ", err);
             });
     }
 
-    runTest();
+    function toggleDetails(id) {
+        var element = document.getElementById(id);
+        var isHidden = (element.style.display === "none" || element.style.display === "");
+        
+        // Hide all others
+        var allDetails = document.querySelectorAll('.details-row');
+        for (var k = 0; k < allDetails.length; k++) {
+            allDetails[k].style.display = 'none';
+        }
+
+        element.style.display = isHidden ? "table-row" : "none";
+    }
+
+    // Load data and refresh every 5 minutes
+    refreshData();
+    setInterval(refreshData, 300000);
 </script>
 
 </body>
