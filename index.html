@@ -1,66 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>A1 Data Test</title>
+    <title>A1 Connection Test</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 50px; background: #f4f4f4; }
-        .debug-box { background: #222; color: #39FF14; padding: 20px; margin: 20px auto; width: 80%; border-radius: 8px; text-align: left; font-family: monospace; }
-        .result-box { font-size: 48px; font-weight: bold; color: #001f3f; margin-top: 20px; }
+        body { 
+            font-family: sans-serif; 
+            text-align: center; 
+            padding-top: 100px; 
+            background-color: #f4f7f6; 
+        }
+        .test-card {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-top: 8px solid #001f3f;
+        }
+        .label { color: #666; text-transform: uppercase; font-size: 14px; letter-spacing: 2px; }
+        .value { 
+            font-size: 100px; 
+            font-weight: bold; 
+            color: #007bff; 
+            margin: 20px 0;
+        }
+        #status { font-size: 12px; color: #888; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <h1>Cell A1 Connection Test</h1>
-    
-    <div id="status">Status: Initializing...</div>
-
-    <div class="result-box">
-        Value in A1: <span id="a1-value">--</span>
-    </div>
-
-    <div class="debug-box" id="log">
-        LOG START:
+    <div class="test-card">
+        <div class="label">Value in Cell A1</div>
+        <div id="display" class="value">...</div>
+        <div id="status">Connecting to Google Sheet...</div>
     </div>
 
 <script>
-    var logEl = document.getElementById('log');
-    function log(msg) {
-        logEl.innerHTML += "<br>> " + msg;
-    }
-
-    // Your confirmed Spreadsheet ID
+    // Using your confirmed Spreadsheet ID
     var SHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
+    
+    // Direct export link for CSV data
     var URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=0";
 
-    function testA1() {
-        log("Fetching data from Google...");
-        
+    function runTest() {
+        var display = document.getElementById('display');
+        var status = document.getElementById('status');
+
+        // fetch with a timestamp to prevent the browser from showing old data
         fetch(URL + "&t=" + new Date().getTime())
-            .then(function(res) {
-                log("Server response received: " + res.status);
-                if (!res.ok) throw new Error("Access Denied or Private Sheet");
-                return res.text();
+            .then(function(response) {
+                if (!response.ok) throw new Error("Check Share Settings");
+                return response.text();
             })
             .then(function(data) {
-                log("Data received. Length: " + data.length);
-                
-                // Get the very first piece of data before the first comma
+                // Split the data to get the very first cell (A1)
                 var rows = data.split('\n');
                 var firstRow = rows[0].split(',');
-                var a1 = firstRow[0].replace(/"/g, "").trim();
-                
-                log("Extracted A1: " + a1);
-                document.getElementById('a1-value').innerText = a1;
-                document.getElementById('status').innerText = "Status: Success!";
+                var a1Value = firstRow[0].replace(/"/g, "").trim();
+
+                if (a1Value !== "") {
+                    display.innerText = a1Value;
+                    display.style.color = "#28a745"; // Green for success
+                    status.innerText = "Successfully connected to your sheet!";
+                } else {
+                    display.innerText = "0";
+                    status.innerText = "Connected, but Cell A1 is empty.";
+                }
             })
             .catch(function(err) {
-                log("ERROR: " + err.message);
-                document.getElementById('status').innerText = "Status: Connection Failed";
-                document.getElementById('a1-value').innerText = "Error";
+                display.innerText = "ERR";
+                display.style.color = "#dc3545"; // Red for error
+                status.innerText = "Error: " + err.message + ". Set sheet to 'Anyone with the link'.";
             });
     }
 
-    testA1();
+    runTest();
 </script>
 
 </body>
