@@ -1,155 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Momentum 2026 Scorecard</title>
+    <title>A1 Data Test</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: #f4f7f6; color: #333; }
-        .header { background: #001f3f; color: #ffffff; padding: 25px; text-align: center; border-bottom: 5px solid #00FFFF; }
-        .stats-row { display: flex; justify-content: center; gap: 20px; padding: 20px; flex-wrap: wrap; }
-        .stat-card { background: #001f3f; color: white; padding: 15px; border-radius: 12px; min-width: 180px; text-align: center; border-top: 4px solid #00FFFF; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .stat-card span { display: block; font-size: 11px; color: #00FFFF; text-transform: uppercase; margin-bottom: 5px; }
-        .stat-card b { font-size: 26px; color: #39FF14; }
-        section { padding: 0 40px 40px 40px; }
-        .table-wrapper { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: #001f3f; color: white; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        .branch-row { cursor: pointer; transition: 0.2s; }
-        .branch-row:hover { background: #f0faff; }
-        .details-row { display: none; background: #fafafa; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; text-align: center; border-bottom: 2px solid #001f3f; }
-        .grid div span { display: block; font-size: 10px; color: #888; text-transform: uppercase; }
-        .grid div strong { font-size: 16px; color: #001f3f; }
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; background: #f4f4f4; }
+        .debug-box { background: #222; color: #39FF14; padding: 20px; margin: 20px auto; width: 80%; border-radius: 8px; text-align: left; font-family: monospace; }
+        .result-box { font-size: 48px; font-weight: bold; color: #001f3f; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>WIN BACK - MOMENTUM 2026</h1>
-</div>
+    <h1>Cell A1 Connection Test</h1>
+    
+    <div id="status">Status: Initializing...</div>
 
-<div class="stats-row">
-    <div class="stat-card"><span>Campaign Day</span><b id="dayVal">0</b></div>
-    <div class="stat-card"><span>Top Branch</span><b id="topBName">-</b></div>
-    <div class="stat-card"><span>Total Score</span><b id="totalPoints">0</b></div>
-</div>
-
-<section>
-    <div class="table-wrapper">
-        <table id="leaderboard">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Branch Name</th>
-                    <th>Area</th>
-                    <th style="text-align:right;">Total Points</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Data will be injected here -->
-            </tbody>
-        </table>
+    <div class="result-box">
+        Value in A1: <span id="a1-value">--</span>
     </div>
-</section>
+
+    <div class="debug-box" id="log">
+        LOG START:
+    </div>
 
 <script>
-    // New Spreadsheet ID confirmed
-    var SPREADSHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
-    var GVIZ_URL = "https://docs.google.com/spreadsheets/d/" + SPREADSHEET_ID + "/gviz/tq?tqx=out:csv";
-    // Proxy to handle CORS security
-    var FINAL_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(GVIZ_URL);
+    var logEl = document.getElementById('log');
+    function log(msg) {
+        logEl.innerHTML += "<br>> " + msg;
+    }
 
-    function refreshData() {
-        fetch(FINAL_URL)
-            .then(function(res) { return res.text(); })
-            .then(function(csvText) {
-                var rows = csvText.split('\n').map(function(row) {
-                    return row.split(',').map(function(cell) {
-                        return cell.replace(/^"(.*)"$/, '$1').trim();
-                    });
-                });
+    // Your confirmed Spreadsheet ID
+    var SHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
+    var URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=0";
 
-                // Row 1, Col 1 (A1) = Day Count
-                document.getElementById('dayVal').innerText = rows[0][0] || "0";
-
-                var branchList = [];
-                var grandTotal = 0;
-
-                // Start from Row 3 (Index 2) to skip "BRANCH" headers
-                for (var i = 2; i < rows.length; i++) {
-                    var bName = rows[i][0];
-                    if (!bName || bName === "BRANCH" || bName === "") { continue; }
-
-                    var data = {
-                        name: bName,
-                        area: rows[i][1] || "N/A",
-                        pts: parseInt(rows[i][2]) || 0, // Column C
-                        today: rows[i][3] || "0",      // Column D
-                        india: rows[i][4] || "0",      // Column E
-                        bdesh: rows[i][5] || "0",      // Column F
-                        egypt: rows[i][6] || "0"       // Column G
-                    };
-                    branchList.push(data);
-                    grandTotal += data.pts;
-                }
-
-                // Sort by Total Points
-                branchList.sort(function(a, b) { return b.pts - a.pts; });
-
-                // Update Top Stats
-                if (branchList.length > 0) {
-                    document.getElementById('topBName').innerText = branchList[0].name;
-                }
-                document.getElementById('totalPoints').innerText = grandTotal.toLocaleString();
-
-                // Build Table Body
-                var tbody = document.querySelector("#leaderboard tbody");
-                var tableHTML = "";
+    function testA1() {
+        log("Fetching data from Google...");
+        
+        fetch(URL + "&t=" + new Date().getTime())
+            .then(function(res) {
+                log("Server response received: " + res.status);
+                if (!res.ok) throw new Error("Access Denied or Private Sheet");
+                return res.text();
+            })
+            .then(function(data) {
+                log("Data received. Length: " + data.length);
                 
-                for (var j = 0; j < branchList.length; j++) {
-                    var b = branchList[j];
-                    var rowID = "row-" + j;
-                    
-                    tableHTML += '<tr class="branch-row" onclick="toggleDetails(\'' + rowID + '\')">';
-                    tableHTML += '<td>#' + (j + 1) + '</td>';
-                    tableHTML += '<td><strong>' + b.name + '</strong></td>';
-                    tableHTML += '<td>' + b.area + '</td>';
-                    tableHTML += '<td style="text-align:right;"><strong>' + b.pts + '</strong></td>';
-                    tableHTML += '</tr>';
-                    
-                    tableHTML += '<tr id="' + rowID + '" class="details-row">';
-                    tableHTML += '<td colspan="4"><div class="grid">';
-                    tableHTML += '<div><span>Today</span><strong>' + b.today + '</strong></div>';
-                    tableHTML += '<div><span>India</span><strong>' + b.india + '</strong></div>';
-                    tableHTML += '<div><span>B-Desh</span><strong>' + b.bdesh + '</strong></div>';
-                    tableHTML += '<div><span>Egypt</span><strong>' + b.egypt + '</strong></div>';
-                    tableHTML += '</div></td></tr>';
-                }
-                tbody.innerHTML = tableHTML;
+                // Get the very first piece of data before the first comma
+                var rows = data.split('\n');
+                var firstRow = rows[0].split(',');
+                var a1 = firstRow[0].replace(/"/g, "").trim();
+                
+                log("Extracted A1: " + a1);
+                document.getElementById('a1-value').innerText = a1;
+                document.getElementById('status').innerText = "Status: Success!";
             })
             .catch(function(err) {
-                console.error("Dashboard Load Error: ", err);
+                log("ERROR: " + err.message);
+                document.getElementById('status').innerText = "Status: Connection Failed";
+                document.getElementById('a1-value').innerText = "Error";
             });
     }
 
-    function toggleDetails(id) {
-        var element = document.getElementById(id);
-        var isHidden = (element.style.display === "none" || element.style.display === "");
-        
-        // Hide all others first
-        var allDetails = document.querySelectorAll('.details-row');
-        for (var k = 0; k < allDetails.length; k++) {
-            allDetails[k].style.display = 'none';
-        }
-
-        element.style.display = isHidden ? "table-row" : "none";
-    }
-
-    // Initial load and 5-minute auto-refresh
-    refreshData();
-    setInterval(refreshData, 300000);
+    testA1();
 </script>
 
 </body>
