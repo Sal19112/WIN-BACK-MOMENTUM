@@ -3,399 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campaign Scorecard</title>
+    <title>Momentum 2026 Dashboard</title>
     <style>
-        :root {
-            --navy-blue: #001f3f;
-            --navy-dark: #00152b;
-            --fluorescent-green: #39FF14;
-            --fluorescent-cyan: #00FFFF;
-            --white: #ffffff;
-            --gray-text: #b0b0b0;
-        }
-
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0;
-            background-color: #f0f2f5;
-            color: #333;
-        }
-
-        header {
-            background-color: var(--navy-blue);
-            color: var(--white);
-            padding: 25px;
-            text-align: center;
-            border-bottom: 4px solid var(--fluorescent-cyan);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 28px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .rules-btn {
-            margin-top: 15px;
-            background: transparent;
-            color: var(--fluorescent-cyan);
-            border: 2px solid var(--fluorescent-cyan);
-            padding: 8px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .rules-btn:hover {
-            background: var(--fluorescent-cyan);
-            color: var(--navy-blue);
-        }
-
-        .stats-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 30px;
-            flex-wrap: wrap;
-        }
-
-        .stat-card {
-            background-color: var(--navy-blue);
-            color: var(--white);
-            padding: 20px;
-            border-radius: 15px;
-            width: 260px;
-            text-align: center;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 5px;
-            background: var(--fluorescent-cyan);
-        }
-
-        .stat-card h3 {
-            margin: 0;
-            font-size: 13px;
-            color: var(--gray-text);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 42px;
-            font-weight: bold;
-            color: var(--fluorescent-green);
-            margin: 10px 0;
-            text-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
-        }
-
-        .stat-label {
-            font-size: 14px;
-            color: var(--fluorescent-cyan);
-            font-weight: 500;
-        }
-
-        section {
-            padding: 0 40px 40px 40px;
-        }
-
-        .table-header h2 {
-            margin: 0 0 20px 0;
-            color: var(--navy-blue);
-            font-size: 22px;
-            border-left: 6px solid var(--navy-blue);
-            padding-left: 15px;
-        }
-
-        .table-wrapper {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background-color: var(--navy-blue);
-            color: white;
-        }
-
-        th {
-            padding: 18px;
-            text-align: left;
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-
-        td {
-            padding: 15px 18px;
-            border-bottom: 1px solid #eee;
-            font-size: 15px;
-        }
-
-        .branch-row {
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .branch-row:hover {
-            background-color: #f0faff !important;
-        }
-
-        /* Corridor Details Sub-Row */
-        .details-row {
-            display: none; /* Hidden by default */
-            background-color: #f8f9fa;
-        }
-
-        .details-container {
-            display: flex;
-            justify-content: space-around;
-            padding: 15px;
-            border-bottom: 2px solid var(--navy-blue);
-        }
-
-        .corridor-box {
-            text-align: center;
-        }
-
-        .corridor-name {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-        }
-
-        .corridor-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--navy-blue);
-        }
-
-        .points-col {
-            font-weight: bold;
-            color: var(--navy-blue);
-            text-align: right;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.85);
-        }
-
-        .modal-content {
-            background-color: #fff;
-            margin: 5% auto;
-            padding: 10px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 650px;
-            position: relative;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: -45px;
-            right: 0;
-            color: white;
-            font-size: 35px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .modal img {
-            width: 100%;
-            height: auto;
-            border-radius: 6px;
-            display: block;
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px;
-            color: #888;
-            font-size: 12px;
-        }
+        :root { --navy: #001f3f; --cyan: #00FFFF; --green: #39FF14; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f8f9fa; color: #333; }
+        header { background: var(--navy); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--cyan); }
+        .stats { display: flex; justify-content: center; gap: 20px; padding: 20px; flex-wrap: wrap; }
+        .card { background: var(--navy); color: white; padding: 15px; border-radius: 10px; min-width: 180px; text-align: center; border-top: 3px solid var(--cyan); }
+        .card span { display: block; font-size: 11px; color: var(--cyan); text-transform: uppercase; }
+        .card div { font-size: 24px; font-weight: bold; color: var(--green); margin-top: 5px; }
+        section { padding: 0 40px 40px; }
+        .table-box { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: var(--navy); color: white; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .branch-row { cursor: pointer; transition: 0.2s; }
+        .branch-row:hover { background: #f0f7ff; }
+        .details-row { display: none; background: #f9f9f9; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; text-align: center; border-bottom: 2px solid var(--navy); }
+        .grid span { display: block; font-size: 10px; color: #777; }
+        .grid strong { font-size: 16px; color: var(--navy); }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>🏆 Momentum 2026 Scorecard</h1>
-    <button class="rules-btn" id="openRules">CAMPAIGN RULES</button>
-</header>
+<header><h1>WIN BACK - MOMENTUM 2026</h1></header>
 
-<div class="stats-container">
-    <div class="stat-card">
-        <h3>Campaign Progress</h3>
-        <div class="stat-value" id="dayValue">0</div>
-        <div class="stat-label">DAY NUMBER</div>
-    </div>
-    <div class="stat-card">
-        <h3>Current Leader</h3>
-        <div class="stat-value" id="topBranchName" style="font-size: 20px;">-</div>
-        <div class="stat-label" id="topBranchPoints">0 Points</div>
-    </div>
-    <div class="stat-card">
-        <h3>Best Performing Area</h3>
-        <div class="stat-value" id="topAreaName" style="font-size: 20px;">-</div>
-        <div class="stat-label" id="topAreaPoints">0 Points</div>
-    </div>
+<div class="stats">
+    <div class="card"><span>DAY COUNT</span><div id="dayVal">0</div></div>
+    <div class="card"><span>TOP BRANCH</span><div id="topB">-</div></div>
+    <div class="card"><span>TOTAL POINTS</span><div id="totalP">0</div></div>
 </div>
 
 <section>
-    <div class="table-header">
-        <h2>Branch Performance Rankings</h2>
-        <p style="font-size: 12px; color: #777; margin-bottom: 15px;">Click on a branch to view corridor breakdown</p>
-    </div>
-    <div class="table-wrapper">
-        <table id="leaderboard">
+    <div class="table-box">
+        <table id="mainTable">
             <thead>
                 <tr>
                     <th>Rank</th>
-                    <th>Branch Name</th>
+                    <th>Branch</th>
                     <th>Area</th>
-                    <th style="text-align: right;">Total Points</th>
+                    <th style="text-align:right">Total Points</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Data injected here -->
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 </section>
 
-<div id="rulesModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" id="closeRules">&times;</span>
-        <img src="rules-image.jpg" alt="Campaign Rules">
-    </div>
-</div>
-
-<footer>
-    Auto-refreshing live from Google Sheets • Last update: <span id="lastUpdate">Never</span>
-</footer>
-
 <script>
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM/edit?usp=sharing";
+    // Using a proxy to bypass CORS issues if running locally
+    const SHEET_ID = "1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM";
+    const BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+    const URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(BASE_URL);
 
     async function loadData() {
         try {
-            const response = await fetch(CSV_URL);
-            const csvData = await response.text();
-            const rows = csvData.trim().split('\n').map(r => r.split(','));
+            const res = await fetch(URL);
+            const text = await res.text();
             
-            // A1 Day Count
-            document.getElementById('dayValue').innerText = rows[0][0] || "0";
+            // CSV Parsing Logic
+            const rows = text.split('\n').map(r => 
+                r.split(',').map(c => c.replace(/^"(.*)"$/, '$1'))
+            );
 
-            const branchData = [];
-            const areaTotals = {};
+            // A1 = Day Count
+            const dayCount = rows[0][0] || "0";
+            document.getElementById('dayVal').innerText = dayCount;
 
-            // Structure: Branch(0), Area(1), Corridor1(2), Corridor2(3), Corridor3(4), Total(5)
-            for (let i = 1; i < rows.length; i++) {
-                const branch = rows[i][0]?.trim();
-                const area = rows[i][1]?.trim();
-                const c1 = parseInt(rows[i][2]) || 0;
-                const c2 = parseInt(rows[i][3]) || 0;
-                const c3 = parseInt(rows[i][4]) || 0;
-                const points = parseInt(rows[i][5]) || 0;
+            const branches = [];
+            let grandTotal = 0;
 
-                if (branch) {
-                    branchData.push({ branch, area, c1, c2, c3, points });
-                    if (area) {
-                        areaTotals[area] = (areaTotals[area] || 0) + points;
-                    }
-                }
+            // Start i=2 to skip header rows
+            for (let i = 2; i < rows.length; i++) {
+                const name = rows[i][0]?.trim();
+                if (!name || name === "BRANCH" || name === "") continue;
+
+                const area = rows[i][1];
+                const pts = parseInt(rows[i][2]) || 0; // Col C
+                const today = rows[i][3] || "0";       // Col D[cite: 1]
+                const india = rows[i][4] || "0";       // Col E[cite: 1]
+                const bdesh = rows[i][5] || "0";       // Col F[cite: 1]
+                const egypt = rows[i][6] || "0";       // Col G[cite: 1]
+
+                branches.push({ name, area, pts, today, india, bdesh, egypt });
+                grandTotal += pts;
             }
 
-            branchData.sort((a, b) => b.points - a.points);[cite: 1]
+            // Sort by Points[cite: 1]
+            branches.sort((a, b) => b.pts - a.pts);
 
-            // Update Cards
-            if (branchData.length > 0) {
-                document.getElementById('topBranchName').innerText = branchData[0].branch;
-                document.getElementById('topBranchPoints').innerText = branchData[0].points.toLocaleString() + " POINTS";
-            }
+            // Update Cards[cite: 1]
+            document.getElementById('topB').innerText = branches[0]?.name || "-";
+            document.getElementById('totalP').innerText = grandTotal.toLocaleString();
 
-            const sortedAreas = Object.entries(areaTotals).sort((a, b) => b[1] - a[1]);
-            if (sortedAreas.length > 0) {
-                document.getElementById('topAreaName').innerText = sortedAreas[0][0];
-                document.getElementById('topAreaPoints').innerText = sortedAreas[0][1].toLocaleString() + " POINTS";
-            }
-
-            // Populate Table with Collapsible Rows
-            const tbody = document.querySelector("#leaderboard tbody");
-            tbody.innerHTML = branchData.map((item, index) => `
-                <tr class="branch-row" onclick="toggleDetails('details-${index}')">
-                    <td style="font-weight: bold; color: #555;">#${index + 1}</td>
-                    <td style="font-weight: 600;">${item.branch}</td>
-                    <td style="color: #666;">${item.area}</td>
-                    <td class="points-col">${item.points.toLocaleString()}</td>
+            // Build Table[cite: 1]
+            const tbody = document.querySelector("#mainTable tbody");
+            tbody.innerHTML = branches.map((b, idx) => `
+                <tr class="branch-row" onclick="toggleRow('row-${idx}')">
+                    <td>#${idx + 1}</td>
+                    <td><strong>${b.name}</strong></td>
+                    <td>${b.area}</td>
+                    <td style="text-align:right"><strong>${b.pts}</strong></td>
                 </tr>
-                <tr id="details-${index}" class="details-row">
+                <tr id="row-${idx}" class="details-row">
                     <td colspan="4">
-                        <div class="details-container">
-                            <div class="corridor-box">
-                                <div class="corridor-name">Corridor 1</div>
-                                <div class="corridor-value">${item.c1}</div>
-                            </div>
-                            <div class="corridor-box">
-                                <div class="corridor-name">Corridor 2</div>
-                                <div class="corridor-value">${item.c2}</div>
-                            </div>
-                            <div class="corridor-box">
-                                <div class="corridor-name">Corridor 3</div>
-                                <div class="corridor-value">${item.c3}</div>
-                            </div>
+                        <div class="grid">
+                            <div><span>Today</span><strong>${b.today}</strong></div>
+                            <div><span>India</span><strong>${b.india}</strong></div>
+                            <div><span>B-Desh</span><strong>${b.bdesh}</strong></div>
+                            <div><span>Egypt</span><strong>${b.egypt}</strong></div>
                         </div>
                     </td>
                 </tr>
             `).join('');
 
-            document.getElementById('lastUpdate').innerText = new Date().toLocaleTimeString();
-
-        } catch (err) {
-            console.error("Fetch error:", err);
+        } catch (e) {
+            console.error("Dashboard Error:", e);
         }
     }
 
-    // Toggle Function for Corridors[cite: 1]
-    function toggleDetails(id) {
-        const detailRow = document.getElementById(id);
-        const isVisible = detailRow.style.display === "table-row";
-        
-        // Hide all other details first (Optional - for a cleaner look)
-        document.querySelectorAll('.details-row').forEach(row => row.style.display = 'none');
-        
-        // Show/Hide target
-        detailRow.style.display = isVisible ? "none" : "table-row";
+    function toggleRow(id) {
+        const row = document.getElementById(id);
+        const isVisible = row.style.display === "table-row";
+        document.querySelectorAll('.details-row').forEach(r => r.style.display = 'none');
+        row.style.display = isVisible ? "none" : "table-row";[cite: 1]
     }
 
-    const modal = document.getElementById("rulesModal");
-    document.getElementById("openRules").onclick = () => modal.style.display = "block";[cite: 1]
-    document.getElementById("closeRules").onclick = () => modal.style.display = "none";[cite: 1]
-    window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; }
-
+    // Initial Load
     loadData();
-    setInterval(loadData, 300000);
+    // Auto-refresh every 2 minutes
+    setInterval(loadData, 120000);
 </script>
-
 </body>
 </html>
