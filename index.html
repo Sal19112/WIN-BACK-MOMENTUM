@@ -3,142 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Momentum 2026 Dashboard</title>
+    <title>Momentum 2026 Scorecard</title>
     <style>
-        :root { --navy: #001f3f; --cyan: #00FFFF; --green: #39FF14; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f8f9fa; }
-        header { background: var(--navy); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--cyan); }
-        .stats { display: flex; justify-content: center; gap: 20px; padding: 20px; }
-        .card { background: var(--navy); color: white; padding: 15px; border-radius: 10px; min-width: 180px; text-align: center; border-top: 3px solid var(--cyan); }
-        .card span { display: block; font-size: 11px; color: var(--cyan); text-transform: uppercase; }
-        .card div { font-size: 24px; font-weight: bold; color: var(--green); margin-top: 5px; }
-        section { padding: 0 40px 40px; }
-        .table-box { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: #f4f7f6; color: #333; }
+        .header { background: #001f3f; color: #ffffff; padding: 25px; text-align: center; border-bottom: 5px solid #00FFFF; }
+        .stats-row { display: flex; justify-content: center; gap: 20px; padding: 20px; flex-wrap: wrap; }
+        .stat-card { background: #001f3f; color: white; padding: 15px; border-radius: 12px; min-width: 180px; text-align: center; border-top: 4px solid #00FFFF; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .stat-card span { display: block; font-size: 11px; color: #00FFFF; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-card b { font-size: 26px; color: #39FF14; }
+        section { padding: 0 40px 40px 40px; }
+        .table-wrapper { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; }
-        thead { background: var(--navy); color: white; }
+        thead { background: #001f3f; color: white; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
         .branch-row { cursor: pointer; transition: 0.2s; }
-        .branch-row:hover { background: #f0f7ff; }
-        .details-row { display: none; background: #f9f9f9; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; text-align: center; border-bottom: 2px solid var(--navy); }
-        .grid span { display: block; font-size: 10px; color: #777; }
-        .grid strong { font-size: 16px; color: var(--navy); }
+        .branch-row:hover { background: #f0faff; }
+        .details-row { display: none; background: #fafafa; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; text-align: center; border-bottom: 2px solid #001f3f; }
+        .grid div span { display: block; font-size: 10px; color: #888; text-transform: uppercase; }
+        .grid div strong { font-size: 16px; color: #001f3f; }
     </style>
 </head>
 <body>
 
-<header><h1>WIN BACK - MOMENTUM 2026</h1></header>
+<div class="header">
+    <h1>WIN BACK - MOMENTUM 2026</h1>
+</div>
 
-<div class="stats">
-    <div class="card"><span>DAY COUNT</span><div id="dayVal">0</div></div>
-    <div class="card"><span>TOP BRANCH</span><div id="topB">-</div></div>
-    <div class="card"><span>TOTAL POINTS</span><div id="totalP">0</div></div>
+<div class="stats-row">
+    <div class="stat-card"><span>Campaign Day</span><b id="dayVal">0</b></div>
+    <div class="stat-card"><span>Top Branch</span><b id="topBName">-</b></div>
+    <div class="stat-card"><span>Total Score</span><b id="totalPoints">0</b></div>
 </div>
 
 <section>
-    <div class="table-box">
-        <table id="mainTable">
+    <div class="table-wrapper">
+        <table id="leaderboard">
             <thead>
                 <tr>
                     <th>Rank</th>
-                    <th>Branch</th>
+                    <th>Branch Name</th>
                     <th>Area</th>
-                    <th style="text-align:right">Total Points</th>
+                    <th style="text-align:right;">Total Points</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                <!-- Data will be injected here -->
+            </tbody>
         </table>
     </div>
 </section>
 
 <script>
-    const SHEET_ID = "1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM";
-    const API_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:csv");
+    // New Spreadsheet ID confirmed
+    var SPREADSHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
+    var GVIZ_URL = "https://docs.google.com/spreadsheets/d/" + SPREADSHEET_ID + "/gviz/tq?tqx=out:csv";
+    // Proxy to handle CORS security
+    var FINAL_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(GVIZ_URL);
 
-    async function loadData() {
-        try {
-            const res = await fetch(API_URL);
-            const text = await res.text();
-            
-            const rows = text.split('\n').map(function(r) {
-                return r.split(',').map(function(c) {
-                    return c.replace(/^"(.*)"$/, '$1');
+    function refreshData() {
+        fetch(FINAL_URL)
+            .then(function(res) { return res.text(); })
+            .then(function(csvText) {
+                var rows = csvText.split('\n').map(function(row) {
+                    return row.split(',').map(function(cell) {
+                        return cell.replace(/^"(.*)"$/, '$1').trim();
+                    });
                 });
+
+                // Row 1, Col 1 (A1) = Day Count
+                document.getElementById('dayVal').innerText = rows[0][0] || "0";
+
+                var branchList = [];
+                var grandTotal = 0;
+
+                // Start from Row 3 (Index 2) to skip "BRANCH" headers
+                for (var i = 2; i < rows.length; i++) {
+                    var bName = rows[i][0];
+                    if (!bName || bName === "BRANCH" || bName === "") { continue; }
+
+                    var data = {
+                        name: bName,
+                        area: rows[i][1] || "N/A",
+                        pts: parseInt(rows[i][2]) || 0, // Column C
+                        today: rows[i][3] || "0",      // Column D
+                        india: rows[i][4] || "0",      // Column E
+                        bdesh: rows[i][5] || "0",      // Column F
+                        egypt: rows[i][6] || "0"       // Column G
+                    };
+                    branchList.push(data);
+                    grandTotal += data.pts;
+                }
+
+                // Sort by Total Points
+                branchList.sort(function(a, b) { return b.pts - a.pts; });
+
+                // Update Top Stats
+                if (branchList.length > 0) {
+                    document.getElementById('topBName').innerText = branchList[0].name;
+                }
+                document.getElementById('totalPoints').innerText = grandTotal.toLocaleString();
+
+                // Build Table Body
+                var tbody = document.querySelector("#leaderboard tbody");
+                var tableHTML = "";
+                
+                for (var j = 0; j < branchList.length; j++) {
+                    var b = branchList[j];
+                    var rowID = "row-" + j;
+                    
+                    tableHTML += '<tr class="branch-row" onclick="toggleDetails(\'' + rowID + '\')">';
+                    tableHTML += '<td>#' + (j + 1) + '</td>';
+                    tableHTML += '<td><strong>' + b.name + '</strong></td>';
+                    tableHTML += '<td>' + b.area + '</td>';
+                    tableHTML += '<td style="text-align:right;"><strong>' + b.pts + '</strong></td>';
+                    tableHTML += '</tr>';
+                    
+                    tableHTML += '<tr id="' + rowID + '" class="details-row">';
+                    tableHTML += '<td colspan="4"><div class="grid">';
+                    tableHTML += '<div><span>Today</span><strong>' + b.today + '</strong></div>';
+                    tableHTML += '<div><span>India</span><strong>' + b.india + '</strong></div>';
+                    tableHTML += '<div><span>B-Desh</span><strong>' + b.bdesh + '</strong></div>';
+                    tableHTML += '<div><span>Egypt</span><strong>' + b.egypt + '</strong></div>';
+                    tableHTML += '</div></td></tr>';
+                }
+                tbody.innerHTML = tableHTML;
+            })
+            .catch(function(err) {
+                console.error("Dashboard Load Error: ", err);
             });
-
-            // Map A1
-            document.getElementById('dayVal').innerText = rows[0][0] || "0";
-
-            const branches = [];
-            let grandTotal = 0;
-
-            // Start i=2 to skip headers
-            for (let i = 2; i < rows.length; i++) {
-                const name = rows[i][0] ? rows[i][0].trim() : "";
-                if (!name || name === "BRANCH") continue;
-
-                const area = rows[i][1] || "";
-                const pts = parseInt(rows[i][2]) || 0; // Col C
-                const today = rows[i][3] || "0";       // Col D
-                const india = rows[i][4] || "0";       // Col E[cite: 1]
-                const bdesh = rows[i][5] || "0";       // Col F[cite: 1]
-                const egypt = rows[i][6] || "0";       // Col G[cite: 1]
-
-                branches.push({ name: name, area: area, pts: pts, today: today, india: india, bdesh: bdesh, egypt: egypt });
-                grandTotal += pts;
-            }
-
-            branches.sort(function(a, b) { return b.pts - a.pts; });[cite: 1]
-
-            if (branches.length > 0) {
-                document.getElementById('topB').innerText = branches[0].name;
-            }
-            document.getElementById('totalP').innerText = grandTotal.toLocaleString();
-
-            const tbody = document.querySelector("#mainTable tbody");
-            let html = "";
-            
-            for (let j = 0; j < branches.length; j++) {
-                const b = branches[j];
-                html += '<tr class="branch-row" onclick="toggleRow(\'row-' + j + '\')">';
-                html += '<td>#' + (j + 1) + '</td>';
-                html += '<td><strong>' + b.name + '</strong></td>';
-                html += '<td>' + b.area + '</td>';
-                html += '<td style="text-align:right"><strong>' + b.pts + '</strong></td>';
-                html += '</tr>';
-                html += '<tr id="row-' + j + '" class="details-row">';
-                html += '<td colspan="4">';
-                html += '<div class="grid">';
-                html += '<div><span>Today</span><strong>' + b.today + '</strong></div>';
-                html += '<div><span>India</span><strong>' + b.india + '</strong></div>';
-                html += '<div><span>B-Desh</span><strong>' + b.bdesh + '</strong></div>';
-                html += '<div><span>Egypt</span><strong>' + b.egypt + '</strong></div>';
-                html += '</div></td></tr>';
-            }
-            tbody.innerHTML = html;
-
-        } catch (e) {
-            console.error("Fetch failed:", e);
-        }
     }
 
-    function toggleRow(id) {
-        const row = document.getElementById(id);
-        const current = row.style.display;
-        // Reset all rows first[cite: 1]
-        const allDetails = document.querySelectorAll('.details-row');
-        for (let k = 0; k < allDetails.length; k++) {
+    function toggleDetails(id) {
+        var element = document.getElementById(id);
+        var isHidden = (element.style.display === "none" || element.style.display === "");
+        
+        // Hide all others first
+        var allDetails = document.querySelectorAll('.details-row');
+        for (var k = 0; k < allDetails.length; k++) {
             allDetails[k].style.display = 'none';
         }
-        // Toggle selected row[cite: 1]
-        if (current === 'table-row') {
-            row.style.display = 'none';
-        } else {
-            row.style.display = 'table-row';
-        }
+
+        element.style.display = isHidden ? "table-row" : "none";
     }
 
-    loadData();
+    // Initial load and 5-minute auto-refresh
+    refreshData();
+    setInterval(refreshData, 300000);
 </script>
+
 </body>
 </html>
