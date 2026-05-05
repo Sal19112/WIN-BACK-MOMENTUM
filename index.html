@@ -52,9 +52,7 @@
 </section>
 
 <script>
-    // Correct Sheet ID and URL mapping[cite: 1]
     const SHEET_ID = "1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM";
-    // Using a reliable proxy to help local files bypass security[cite: 1]
     const API_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:csv");
 
     async function loadData() {
@@ -68,56 +66,56 @@
                 });
             });
 
-            // Map A1[cite: 1]
+            // Map A1
             document.getElementById('dayVal').innerText = rows[0][0] || "0";
 
             const branches = [];
             let grandTotal = 0;
 
-            // Start i=2 to skip header rows[cite: 1]
+            // Start i=2 to skip headers
             for (let i = 2; i < rows.length; i++) {
                 const name = rows[i][0] ? rows[i][0].trim() : "";
                 if (!name || name === "BRANCH") continue;
 
                 const area = rows[i][1] || "";
-                const pts = parseInt(rows[i][2]) || 0; // Col C[cite: 1]
-                const today = rows[i][3] || "0";       // Col D[cite: 1]
+                const pts = parseInt(rows[i][2]) || 0; // Col C
+                const today = rows[i][3] || "0";       // Col D
                 const india = rows[i][4] || "0";       // Col E[cite: 1]
                 const bdesh = rows[i][5] || "0";       // Col F[cite: 1]
                 const egypt = rows[i][6] || "0";       // Col G[cite: 1]
 
-                branches.push({ name, area, pts, today, india, bdesh, egypt });
+                branches.push({ name: name, area: area, pts: pts, today: today, india: india, bdesh: bdesh, egypt: egypt });
                 grandTotal += pts;
             }
 
-            // Sort by Points[cite: 1]
-            branches.sort(function(a, b) { return b.pts - a.pts; });
+            branches.sort(function(a, b) { return b.pts - a.pts; });[cite: 1]
 
-            // Update Header Stats[cite: 1]
             if (branches.length > 0) {
                 document.getElementById('topB').innerText = branches[0].name;
             }
             document.getElementById('totalP').innerText = grandTotal.toLocaleString();
 
             const tbody = document.querySelector("#mainTable tbody");
-            tbody.innerHTML = branches.map(function(b, idx) {
-                return '<tr class="branch-row" onclick="toggleRow(\'row-' + idx + '\')">' +
-                    '<td>#' + (idx + 1) + '</td>' +
-                    '<td><strong>' + b.name + '</strong></td>' +
-                    '<td>' + b.area + '</td>' +
-                    '<td style="text-align:right"><strong>' + b.pts + '</strong></td>' +
-                '</tr>' +
-                '<tr id="row-' + idx + '" class="details-row">' +
-                    '<td colspan="4">' +
-                        '<div class="grid">' +
-                            '<div><span>Today</span><strong>' + b.today + '</strong></div>' +
-                            '<div><span>India</span><strong>' + b.india + '</strong></div>' +
-                            '<div><span>B-Desh</span><strong>' + b.bdesh + '</strong></div>' +
-                            '<div><span>Egypt</span><strong>' + b.egypt + '</strong></div>' +
-                        '</div>' +
-                    '</td>' +
-                '</tr>';
-            }).join('');
+            let html = "";
+            
+            for (let j = 0; j < branches.length; j++) {
+                const b = branches[j];
+                html += '<tr class="branch-row" onclick="toggleRow(\'row-' + j + '\')">';
+                html += '<td>#' + (j + 1) + '</td>';
+                html += '<td><strong>' + b.name + '</strong></td>';
+                html += '<td>' + b.area + '</td>';
+                html += '<td style="text-align:right"><strong>' + b.pts + '</strong></td>';
+                html += '</tr>';
+                html += '<tr id="row-' + j + '" class="details-row">';
+                html += '<td colspan="4">';
+                html += '<div class="grid">';
+                html += '<div><span>Today</span><strong>' + b.today + '</strong></div>';
+                html += '<div><span>India</span><strong>' + b.india + '</strong></div>';
+                html += '<div><span>B-Desh</span><strong>' + b.bdesh + '</strong></div>';
+                html += '<div><span>Egypt</span><strong>' + b.egypt + '</strong></div>';
+                html += '</div></td></tr>';
+            }
+            tbody.innerHTML = html;
 
         } catch (e) {
             console.error("Fetch failed:", e);
@@ -126,9 +124,18 @@
 
     function toggleRow(id) {
         const row = document.getElementById(id);
-        const isVisible = row.style.display === "table-row";
-        document.querySelectorAll('.details-row').forEach(function(r) { r.style.display = 'none'; });
-        row.style.display = isVisible ? "none" : "table-row";[cite: 1]
+        const current = row.style.display;
+        // Reset all rows first[cite: 1]
+        const allDetails = document.querySelectorAll('.details-row');
+        for (let k = 0; k < allDetails.length; k++) {
+            allDetails[k].style.display = 'none';
+        }
+        // Toggle selected row[cite: 1]
+        if (current === 'table-row') {
+            row.style.display = 'none';
+        } else {
+            row.style.display = 'table-row';
+        }
     }
 
     loadData();
