@@ -1,97 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Momentum 2026 Dashboard</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
+        .header { background: #001f3f; color: #00FFFF; padding: 20px; text-align: center; border-bottom: 4px solid #00FFFF; }
+        .stats { display: flex; justify-content: center; padding: 20px; gap: 10px; }
+        .card { background: #001f3f; color: white; padding: 15px; border-radius: 8px; min-width: 120px; text-align: center; }
+        .card b { display: block; font-size: 24px; color: #39FF14; }
+        table { width: 95%; margin: 20px auto; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th { background: #001f3f; color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #ddd; }
+        .details { display: none; background: #eee; padding: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="header"><h1>WIN BACK - MOMENTUM 2026</h1></div>
+
+<div class="stats">
+    <div class="card"><span>DAY</span><b id="dayVal">0</b></div>
+    <div class="card"><span>TOTAL POINTS</span><b id="totalP">0</b></div>
+</div>
+
+<table id="mainTable">
+    <thead>
+        <tr><th>Rank</th><th>Branch</th><th>Area</th><th style="text-align:right">Points</th></tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+
 <script>
-    // Link to your new sheet export
+    // YOUR NEW SHEET ID
     var SHEET_ID = "1gN_nb8Hjggg9hjawsTu8j6WI9sfFqGcZRYYzacjGMaE";
-    var FINAL_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=0";
+    var DATA_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=0&t=" + new Date().getTime();
 
-    function refreshData() {
-        // Adding a timestamp to the URL to force Google to give us FRESH data
-        var cacheBuster = FINAL_URL + "&t=" + new Date().getTime();
-
-        fetch(cacheBuster)
+    function loadDashboard() {
+        fetch(DATA_URL)
             .then(function(res) { return res.text(); })
             .then(function(csvText) {
-                // Split rows and handle potential carriage returns
-                var rows = csvText.split(/\r?\n/).map(function(row) {
-                    return row.split(',').map(function(cell) {
-                        return cell.replace(/^"(.*)"$/, '$1').trim();
+                var rows = csvText.split("\n").map(function(row) {
+                    return row.split(",").map(function(cell) {
+                        return cell.replace(/^"(.*)"$/, "$1").trim();
                     });
                 });
 
-                // --- DEBUG: If you still see 0, press F12 and look at this log ---
-                console.log("Raw Data Received:", rows);
+                // Set Day Count from A1
+                document.getElementById("dayVal").innerText = rows[0][0] || "0";
 
-                // Day Count Check (A1 or B1)
-                var day = rows[0][0];
-                if (!day || isNaN(day)) day = rows[0][1]; 
-                document.getElementById('dayVal').innerText = day || "0";
+                var list = [];
+                var total = 0;
 
-                var branchList = [];
-                var grandTotal = 0;
-
-                // Loop starts at Row 3 (Index 2)
+                // Loop starts at row 3 (Index 2)
                 for (var i = 2; i < rows.length; i++) {
-                    var bName = rows[i][0];
-                    
-                    // Skip if name is empty or is just the header word "BRANCH"
-                    if (!bName || bName.toUpperCase() === "BRANCH" || bName === "") continue;
+                    var name = rows[i][0];
+                    if (!name || name.toUpperCase() === "BRANCH") continue;
 
-                    var data = {
-                        name: bName,
-                        area: rows[i][1] || "N/A",
-                        pts: parseInt(rows[i][2]) || 0, // Column C
-                        today: rows[i][3] || "0",      // Column D
-                        india: rows[i][4] || "0",      // Column E
-                        bdesh: rows[i][5] || "0",      // Column F
-                        egypt: rows[i][6] || "0"       // Column G
-                    };
-                    branchList.push(data);
-                    grandTotal += data.pts;
+                    var pts = parseInt(rows[i][2]) || 0; // Column C
+                    list.push({
+                        name: name,
+                        area: rows[i][1] || "",
+                        pts: pts,
+                        today: rows[i][3] || "0",
+                        india: rows[i][4] || "0"
+                    });
+                    total += pts;
                 }
 
-                // Sort and Update UI
-                branchList.sort(function(a, b) { return b.pts - a.pts; });
+                // Sort by points
+                list.sort(function(a, b) { return b.pts - a.pts; });
+                document.getElementById("totalP").innerText = total.toLocaleString();
 
-                if (branchList.length > 0) {
-                    document.getElementById('topBName').innerText = branchList[0].name;
-                } else {
-                    document.getElementById('topBName').innerText = "No Data";
-                }
-                
-                document.getElementById('totalPoints').innerText = grandTotal.toLocaleString();
-
-                var tbody = document.querySelector("#leaderboard tbody");
+                // Build Table
                 var html = "";
-                for (var j = 0; j < branchList.length; j++) {
-                    var b = branchList[j];
-                    var rowID = "row-" + j;
-                    html += '<tr class="branch-row" onclick="toggleDetails(\'' + rowID + '\')">';
-                    html += '<td>#' + (j + 1) + '</td>';
-                    html += '<td><strong>' + b.name + '</strong></td>';
-                    html += '<td>' + b.area + '</td>';
-                    html += '<td style="text-align:right;"><strong>' + b.pts + '</strong></td>';
-                    html += '</tr>';
-                    html += '<tr id="' + rowID + '" class="details-row" style="display:none;">';
-                    html += '<td colspan="4"><div class="grid">';
-                    html += '<div><span>Today</span><strong>' + b.today + '</strong></div>';
-                    html += '<div><span>India</span><strong>' + b.india + '</strong></div>';
-                    html += '<div><span>B-Desh</span><strong>' + b.bdesh + '</strong></div>';
-                    html += '<div><span>Egypt</span><strong>' + b.egypt + '</strong></div>';
-                    html += '</div></td></tr>';
+                for (var j = 0; j < list.length; j++) {
+                    var b = list[j];
+                    html += "<tr>";
+                    html += "<td>#" + (j + 1) + "</td>";
+                    html += "<td><b>" + b.name + "</b></td>";
+                    html += "<td>" + b.area + "</td>";
+                    html += "<td style='text-align:right'><b>" + b.pts + "</b></td>";
+                    html += "</tr>";
                 }
-                tbody.innerHTML = html;
+                document.getElementById("tableBody").innerHTML = html;
             })
             .catch(function(err) {
-                console.error("Fetch Error:", err);
+                document.body.innerHTML = "<h1>Error loading data</h1><p>" + err + "</p>";
             });
     }
 
-    function toggleDetails(id) {
-        var element = document.getElementById(id);
-        var isHidden = (element.style.display === "none");
-        var all = document.querySelectorAll('.details-row');
-        for (var k = 0; k < all.length; k++) { all[k].style.display = 'none'; }
-        element.style.display = isHidden ? "table-row" : "none";
-    }
-
-    refreshData();
+    loadDashboard();
 </script>
+
+</body>
+</html>
