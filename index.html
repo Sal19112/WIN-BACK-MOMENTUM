@@ -21,7 +21,6 @@
             color: #333;
         }
 
-        /* Header Style */
         header {
             background-color: var(--navy-blue);
             color: var(--white);
@@ -56,7 +55,6 @@
             color: var(--navy-blue);
         }
 
-        /* Top Cards Section */
         .stats-container {
             display: flex;
             justify-content: center;
@@ -106,19 +104,12 @@
             font-weight: 500;
         }
 
-        /* Table Section */
         section {
             padding: 0 40px 40px 40px;
         }
 
-        .table-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
         .table-header h2 {
-            margin: 0;
+            margin: 0 0 20px 0;
             color: var(--navy-blue);
             font-size: 22px;
             border-left: 6px solid var(--navy-blue);
@@ -155,8 +146,42 @@
             font-size: 15px;
         }
 
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+        .branch-row {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .branch-row:hover {
+            background-color: #f0faff !important;
+        }
+
+        /* Corridor Details Sub-Row */
+        .details-row {
+            display: none; /* Hidden by default */
+            background-color: #f8f9fa;
+        }
+
+        .details-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            border-bottom: 2px solid var(--navy-blue);
+        }
+
+        .corridor-box {
+            text-align: center;
+        }
+
+        .corridor-name {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .corridor-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--navy-blue);
         }
 
         .points-col {
@@ -165,7 +190,6 @@
             text-align: right;
         }
 
-        /* Modal / Popup */
         .modal {
             display: none;
             position: fixed;
@@ -220,19 +244,16 @@
 </header>
 
 <div class="stats-container">
-    <!-- Day Counter (from A1) -->
     <div class="stat-card">
         <h3>Campaign Progress</h3>
         <div class="stat-value" id="dayValue">0</div>
         <div class="stat-label">DAY NUMBER</div>
     </div>
-    <!-- Top Branch (Top Rank) -->
     <div class="stat-card">
         <h3>Current Leader</h3>
         <div class="stat-value" id="topBranchName" style="font-size: 20px;">-</div>
         <div class="stat-label" id="topBranchPoints">0 Points</div>
     </div>
-    <!-- Top Area (Aggregated) -->
     <div class="stat-card">
         <h3>Best Performing Area</h3>
         <div class="stat-value" id="topAreaName" style="font-size: 20px;">-</div>
@@ -243,6 +264,7 @@
 <section>
     <div class="table-header">
         <h2>Branch Performance Rankings</h2>
+        <p style="font-size: 12px; color: #777; margin-bottom: 15px;">Click on a branch to view corridor breakdown</p>
     </div>
     <div class="table-wrapper">
         <table id="leaderboard">
@@ -255,13 +277,12 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- JS will inject rows here -->
+                <!-- Data injected here -->
             </tbody>
         </table>
     </div>
 </section>
 
-<!-- Rules Popup -->
 <div id="rulesModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" id="closeRules">&times;</span>
@@ -274,91 +295,105 @@
 </footer>
 
 <script>
-    // 1. SETTINGS
-    // Using the /export?format=csv endpoint is vital for direct data fetching
     const CSV_URL = "https://docs.google.com/spreadsheets/d/1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM/export?format=csv";
 
     async function loadData() {
         try {
             const response = await fetch(CSV_URL);
             const csvData = await response.text();
-            
-            // Clean up rows
             const rows = csvData.trim().split('\n').map(r => r.split(','));
             
-            // 2. EXTRACT CAMPAIGN DAY (From A1 - represented by first row, first column in export)
-            // Note: In some exports, the very first cell is the header. 
-            // If A1 is the header 'Days', we take data from row 2. 
-            // We'll assume A1 is literal numeric day data based on your request.
-            const dayCount = rows[0][0] || "0";
-            document.getElementById('dayValue').innerText = dayCount;
+            // A1 Day Count
+            document.getElementById('dayValue').innerText = rows[0][0] || "0";
 
-            // 3. PROCESS DATA (Assuming row 1 is header, data starts at row 2)
-            // Structure: Branch (Col 0), Area (Col 1), Points (Col 2)
             const branchData = [];
             const areaTotals = {};
 
+            // Structure: Branch(0), Area(1), Corridor1(2), Corridor2(3), Corridor3(4), Total(5)
             for (let i = 1; i < rows.length; i++) {
                 const branch = rows[i][0]?.trim();
                 const area = rows[i][1]?.trim();
-                const points = parseInt(rows[i][2]) || 0;
+                const c1 = parseInt(rows[i][2]) || 0;
+                const c2 = parseInt(rows[i][3]) || 0;
+                const c3 = parseInt(rows[i][4]) || 0;
+                const points = parseInt(rows[i][5]) || 0;
 
                 if (branch) {
-                    branchData.push({ branch, area, points });
-                    
-                    // Area Aggregation
+                    branchData.push({ branch, area, c1, c2, c3, points });
                     if (area) {
                         areaTotals[area] = (areaTotals[area] || 0) + points;
                     }
                 }
             }
 
-            // 4. SORT BY POINTS DESCENDING
-            branchData.sort((a, b) => b.points - a.points);
+            branchData.sort((a, b) => b.points - a.points);[cite: 1]
 
-            // 5. UPDATE "TOP BRANCH" CARD
+            // Update Cards
             if (branchData.length > 0) {
                 document.getElementById('topBranchName').innerText = branchData[0].branch;
                 document.getElementById('topBranchPoints').innerText = branchData[0].points.toLocaleString() + " POINTS";
             }
 
-            // 6. UPDATE "TOP AREA" CARD
             const sortedAreas = Object.entries(areaTotals).sort((a, b) => b[1] - a[1]);
             if (sortedAreas.length > 0) {
                 document.getElementById('topAreaName').innerText = sortedAreas[0][0];
                 document.getElementById('topAreaPoints').innerText = sortedAreas[0][1].toLocaleString() + " POINTS";
             }
 
-            // 7. POPULATE MAIN TABLE
+            // Populate Table with Collapsible Rows
             const tbody = document.querySelector("#leaderboard tbody");
             tbody.innerHTML = branchData.map((item, index) => `
-                <tr>
+                <tr class="branch-row" onclick="toggleDetails('details-${index}')">
                     <td style="font-weight: bold; color: #555;">#${index + 1}</td>
                     <td style="font-weight: 600;">${item.branch}</td>
                     <td style="color: #666;">${item.area}</td>
                     <td class="points-col">${item.points.toLocaleString()}</td>
+                </tr>
+                <tr id="details-${index}" class="details-row">
+                    <td colspan="4">
+                        <div class="details-container">
+                            <div class="corridor-box">
+                                <div class="corridor-name">Corridor 1</div>
+                                <div class="corridor-value">${item.c1}</div>
+                            </div>
+                            <div class="corridor-box">
+                                <div class="corridor-name">Corridor 2</div>
+                                <div class="corridor-value">${item.c2}</div>
+                            </div>
+                            <div class="corridor-box">
+                                <div class="corridor-name">Corridor 3</div>
+                                <div class="corridor-value">${item.c3}</div>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
 
             document.getElementById('lastUpdate').innerText = new Date().toLocaleTimeString();
 
         } catch (err) {
-            console.error("Dashboard failed to fetch data:", err);
+            console.error("Fetch error:", err);
         }
     }
 
-    // --- POPUP HANDLERS ---
-    const modal = document.getElementById("rulesModal");
-    const openBtn = document.getElementById("openRules");
-    const closeBtn = document.getElementById("closeRules");
+    // Toggle Function for Corridors[cite: 1]
+    function toggleDetails(id) {
+        const detailRow = document.getElementById(id);
+        const isVisible = detailRow.style.display === "table-row";
+        
+        // Hide all other details first (Optional - for a cleaner look)
+        document.querySelectorAll('.details-row').forEach(row => row.style.display = 'none');
+        
+        // Show/Hide target
+        detailRow.style.display = isVisible ? "none" : "table-row";
+    }
 
-    openBtn.onclick = () => modal.style.display = "block";
-    closeBtn.onclick = () => modal.style.display = "none";
+    const modal = document.getElementById("rulesModal");
+    document.getElementById("openRules").onclick = () => modal.style.display = "block";[cite: 1]
+    document.getElementById("closeRules").onclick = () => modal.style.display = "none";[cite: 1]
     window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; }
 
-    // Start
     loadData();
-    // Auto-refresh every 5 mins
     setInterval(loadData, 300000);
 </script>
 
