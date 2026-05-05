@@ -3,256 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Momentum 2026 Dashboard</title>
+    <title>Momentum 2026 Scorecard</title>
     <style>
         :root {
-            --navy-blue: #001f3f;
-            --fluorescent-green: #39FF14;
-            --fluorescent-cyan: #00FFFF;
+            --navy: #001f3f;
+            --cyan: #00FFFF;
+            --green: #39FF14;
             --white: #ffffff;
-            --bg-light: #f4f7f6;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-light);
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
-            color: #333;
+            background-color: #f8f9fa;
         }
 
         header {
-            background: var(--navy-blue);
+            background: var(--navy);
             color: var(--white);
             padding: 20px;
             text-align: center;
-            border-bottom: 4px solid var(--fluorescent-cyan);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border-bottom: 4px solid var(--cyan);
         }
 
-        .stats-row {
+        .top-stats {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
             padding: 20px;
             flex-wrap: wrap;
         }
 
-        .stat-card {
-            background: var(--navy-blue);
+        .card {
+            background: var(--navy);
             color: white;
             padding: 15px;
-            border-radius: 12px;
-            width: 220px;
+            border-radius: 10px;
+            min-width: 200px;
             text-align: center;
-            border-top: 4px solid var(--fluorescent-cyan);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--fluorescent-green);
-        }
+        .card span { display: block; font-size: 12px; color: var(--cyan); letter-spacing: 1px; }
+        .card div { font-size: 28px; font-weight: bold; color: var(--green); margin-top: 5px; }
 
-        .search-container {
-            padding: 0 40px 20px 40px;
-            text-align: center;
-        }
+        section { padding: 20px 40px; }
 
-        #branchSearch {
-            width: 100%;
-            max-width: 400px;
-            padding: 12px;
-            border-radius: 25px;
-            border: 1px solid #ccc;
-            outline: none;
-        }
-
-        section { padding: 0 40px 40px 40px; }
-
-        .table-wrapper {
+        .table-container {
             background: white;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         table { width: 100%; border-collapse: collapse; }
-
-        thead { background: var(--navy-blue); color: white; }
-
+        thead { background: var(--navy); color: white; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
 
-        .branch-row { cursor: pointer; transition: 0.2s; }
-        .branch-row:hover { background: #eef9ff; }
+        .branch-row { cursor: pointer; transition: background 0.2s; }
+        .branch-row:hover { background: #f0f7ff; }
 
-        .details-row { display: none; background: #fdfdfd; }
+        .details-row { display: none; background: #fafafa; }
 
-        .corridor-grid {
+        .breakdown-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             padding: 15px;
             text-align: center;
-            background: #f9f9f9;
-            border-bottom: 2px solid var(--navy-blue);
+            border-bottom: 2px solid var(--navy);
         }
 
-        .corridor-item span { display: block; font-size: 11px; color: #777; }
-        .corridor-item strong { font-size: 18px; color: var(--navy-blue); }
+        .item span { display: block; font-size: 10px; color: #777; text-transform: uppercase; }
+        .item strong { font-size: 18px; color: var(--navy); }
+        .today-highlight { color: #d9534f !important; } /* Highlight for Today's Count */
 
-        .points-cell { font-weight: bold; text-align: right; color: var(--navy-blue); }
-
-        footer { text-align: center; padding: 20px; font-size: 12px; color: #888; }
+        footer { text-align: center; padding: 20px; color: #999; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>WIN BACK - MOMENTUM 2026</h1>
-    <div style="font-size: 14px; color: var(--fluorescent-cyan);">LIVE PERFORMANCE TRACKER</div>
+    <h1>🏆 WIN BACK - MOMENTUM 2026</h1>
 </header>
 
-<div class="stats-row">
-    <div class="stat-card">
-        <div>CAMPAIGN DAY</div>
-        <div class="stat-value" id="dayValue">0</div>
-    </div>
-    <div class="stat-card">
-        <div>TOP BRANCH</div>
-        <div class="stat-value" id="topBranchName" style="font-size: 18px;">-</div>
-    </div>
-    <div class="stat-card">
-        <div>TOP AREA</div>
-        <div class="stat-value" id="topAreaName" style="font-size: 18px;">-</div>
-    </div>
-</div>
-
-<div class="search-container">
-    <input type="text" id="branchSearch" placeholder="🔍 Search branch name..." onkeyup="filterTable()">
+<div class="top-stats">
+    <div class="card"><span>CAMPAIGN DAY</span><div id="dayVal">0</div></div>
+    <div class="card"><span>TOP BRANCH</span><div id="topBranch" style="font-size: 18px;">-</div></div>
+    <div class="card"><span>OVERALL POINTS</span><div id="totalSum">0</div></div>
 </div>
 
 <section>
-    <div class="table-wrapper">
-        <table id="leaderboard">
+    <div class="table-container">
+        <table id="scoreTable">
             <thead>
                 <tr>
                     <th>Rank</th>
-                    <th>Branch</th>
+                    <th>Branch Name</th>
                     <th>Area</th>
                     <th style="text-align: right;">Total Points</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Data will load here -->
-            </tbody>
+            <tbody><!-- Dynamic Content --></tbody>
         </table>
     </div>
 </section>
 
-<footer>
-    Last Update: <span id="lastUpdate">-</span>
-</footer>
+<footer>Last synced: <span id="syncTime">-</span></footer>
 
 <script>
-    // Using the GVIZ URL for better reliability
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM/gviz/tq?tqx=out:csv";
+    const SHEET_CSV = "https://docs.google.com/spreadsheets/d/1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM/gviz/tq?tqx=out:csv";
 
-    async function fetchData() {
+    async function updateDashboard() {
         try {
-            const response = await fetch(SHEET_URL);
-            const data = await response.text();
-            
-            // Parsing CSV correctly (handling quotes)
-            const rows = data.split('\n').map(row => 
+            const res = await fetch(SHEET_CSV);
+            const text = await res.text();
+            const rows = text.split('\n').map(row => 
                 row.split(',').map(cell => cell.replace(/^"(.*)"$/, '$1'))
             );
 
-            // Row 0, Col 0 = Day Number (A1)
-            document.getElementById('dayValue').innerText = rows[0][0] || "0";
+            // A1 Mapping[cite: 1]
+            document.getElementById('dayVal').innerText = rows[0][0] || "0";
 
-            const branches = [];
-            const areaMap = {};
+            const data = [];
+            let totalPointsSum = 0;
 
-            // Start from i=2 to skip the CSV headers
+            // Start from row 3 (index 2) to skip "BRANCH" header[cite: 1]
             for (let i = 2; i < rows.length; i++) {
-                const name = rows[i][0]?.trim();
+                const branch = rows[i][0]?.trim();
                 const area = rows[i][1]?.trim();
-                const points = parseInt(rows[i][2]) || 0; // Col C[cite: 1]
-                const india = parseInt(rows[i][4]) || 0;  // Col E[cite: 1]
-                const bdesh = parseInt(rows[i][5]) || 0;  // Col F[cite: 1]
-                const egypt = parseInt(rows[i][6]) || 0;  // Col G[cite: 1]
+                const totalPts = parseInt(rows[i][2]) || 0; // Col C[cite: 1]
+                const todayCount = rows[i][3] || "0";       // Col D[cite: 1]
+                const india = rows[i][4] || "0";            // Col E[cite: 1]
+                const bdesh = rows[i][5] || "0";            // Col F[cite: 1]
+                const egypt = rows[i][6] || "0";            // Col G[cite: 1]
 
-                if (name && name !== "BRANCH") {
-                    branches.push({ name, area, points, india, bdesh, egypt });
-                    if (area) {
-                        areaMap[area] = (areaMap[area] || 0) + points;
-                    }
+                if (branch && branch !== "BRANCH") {
+                    data.push({ branch, area, totalPts, todayCount, india, bdesh, egypt });
+                    totalPointsSum += totalPts;
                 }
             }
 
-            // Rank by points[cite: 1]
-            branches.sort((a, b) => b.points - a.points);
+            // Sort by Total Points[cite: 1]
+            data.sort((a, b) => b.totalPts - a.totalPts);
 
-            // Update Top Stats[cite: 1]
-            if (branches.length > 0) {
-                document.getElementById('topBranchName').innerText = branches[0].name;
-                const topArea = Object.entries(areaMap).sort((a,b) => b[1] - a[1])[0];
-                document.getElementById('topAreaName').innerText = topArea ? topArea[0] : "-";
-            }
+            // UI Updates[cite: 1]
+            document.getElementById('topBranch').innerText = data[0]?.branch || "-";
+            document.getElementById('totalSum').innerText = totalPointsSum.toLocaleString();
 
-            // Build Table[cite: 1]
-            const tbody = document.querySelector("#leaderboard tbody");
-            tbody.innerHTML = branches.map((b, index) => `
-                <tr class="branch-row" onclick="toggleRow('details-${index}')">
-                    <td style="color:#888;">#${index + 1}</td>
-                    <td style="font-weight:600;">${b.name}</td>
-                    <td>${b.area}</td>
-                    <td class="points-cell">${b.points}</td>
+            const tbody = document.querySelector("#scoreTable tbody");
+            tbody.innerHTML = data.map((item, idx) => `
+                <tr class="branch-row" onclick="toggleRow('row-${idx}')">
+                    <td>#${idx + 1}</td>
+                    <td style="font-weight:bold;">${item.branch}</td>
+                    <td>${item.area}</td>
+                    <td style="text-align:right; font-weight:bold;">${item.totalPts}</td>
                 </tr>
-                <tr id="details-${index}" class="details-row">
+                <tr id="row-${idx}" class="details-row">
                     <td colspan="4">
-                        <div class="corridor-grid">
-                            <div class="corridor-item"><span>INDIA</span><strong>${b.india}</strong></div>
-                            <div class="corridor-item"><span>BANGLADESH</span><strong>${b.bdesh}</strong></div>
-                            <div class="corridor-item"><span>EGYPT</span><strong>${b.egypt}</strong></div>
+                        <div class="breakdown-grid">
+                            <div class="item"><span>Today's Count</span><strong class="today-highlight">${item.todayCount}</strong></div>
+                            <div class="item"><span>India</span><strong>${item.india}</strong></div>
+                            <div class="item"><span>Bangladesh</span><strong>${item.bdesh}</strong></div>
+                            <div class="item"><span>Egypt</span><strong>${item.egypt}</strong></div>
                         </div>
                     </td>
                 </tr>
             `).join('');
 
-            document.getElementById('lastUpdate').innerText = new Date().toLocaleTimeString();
+            document.getElementById('syncTime').innerText = new Date().toLocaleTimeString();
 
-        } catch (err) {
-            console.error("Error loading data:", err);
-        }
+        } catch (e) { console.error("Data error", e); }
     }
 
     function toggleRow(id) {
-        const row = document.getElementById(id);
-        const isHidden = (row.style.display === "none" || row.style.display === "");
-        
-        // Hide all others first
+        const target = document.getElementById(id);
+        const showing = target.style.display === "table-row";
         document.querySelectorAll('.details-row').forEach(r => r.style.display = "none");
-        
-        row.style.display = isHidden ? "table-row" : "none";[cite: 1]
+        target.style.display = showing ? "none" : "table-row";[cite: 1]
     }
 
-    function filterTable() {
-        const input = document.getElementById("branchSearch").value.toUpperCase();
-        const rows = document.querySelectorAll(".branch-row");
-        
-        rows.forEach(row => {
-            const text = row.cells[1].textContent.toUpperCase();
-            row.style.display = text.includes(input) ? "" : "none";
-            // Also hide the detail row if parent is hidden
-            const detailId = row.getAttribute('onclick').match(/'([^']+)'/)[1];
-            document.getElementById(detailId).style.display = "none";
-        });
-    }
-
-    // Refresh every 5 minutes
-    fetchData();
-    setInterval(fetchData, 300000);
+    updateDashboard();
+    setInterval(updateDashboard, 300000); // 5 min auto-refresh
 </script>
 
 </body>
