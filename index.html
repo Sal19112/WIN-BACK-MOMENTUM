@@ -6,9 +6,9 @@
     <title>Momentum 2026 Dashboard</title>
     <style>
         :root { --navy: #001f3f; --cyan: #00FFFF; --green: #39FF14; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f8f9fa; color: #333; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f8f9fa; }
         header { background: var(--navy); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--cyan); }
-        .stats { display: flex; justify-content: center; gap: 20px; padding: 20px; flex-wrap: wrap; }
+        .stats { display: flex; justify-content: center; gap: 20px; padding: 20px; }
         .card { background: var(--navy); color: white; padding: 15px; border-radius: 10px; min-width: 180px; text-align: center; border-top: 3px solid var(--cyan); }
         .card span { display: block; font-size: 11px; color: var(--cyan); text-transform: uppercase; }
         .card div { font-size: 24px; font-weight: bold; color: var(--green); margin-top: 5px; }
@@ -52,35 +52,35 @@
 </section>
 
 <script>
-    // Using a proxy to bypass CORS issues if running locally
+    // Correct Sheet ID and URL mapping[cite: 1]
     const SHEET_ID = "1FMhviCglcY4z2CbkOg3iHLBbKScMbTcRh6MFfG3KHMM";
-    const BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
-    const URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(BASE_URL);
+    // Using a reliable proxy to help local files bypass security[cite: 1]
+    const API_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:csv");
 
     async function loadData() {
         try {
-            const res = await fetch(URL);
+            const res = await fetch(API_URL);
             const text = await res.text();
             
-            // CSV Parsing Logic
-            const rows = text.split('\n').map(r => 
-                r.split(',').map(c => c.replace(/^"(.*)"$/, '$1'))
-            );
+            const rows = text.split('\n').map(function(r) {
+                return r.split(',').map(function(c) {
+                    return c.replace(/^"(.*)"$/, '$1');
+                });
+            });
 
-            // A1 = Day Count
-            const dayCount = rows[0][0] || "0";
-            document.getElementById('dayVal').innerText = dayCount;
+            // Map A1[cite: 1]
+            document.getElementById('dayVal').innerText = rows[0][0] || "0";
 
             const branches = [];
             let grandTotal = 0;
 
-            // Start i=2 to skip header rows
+            // Start i=2 to skip header rows[cite: 1]
             for (let i = 2; i < rows.length; i++) {
-                const name = rows[i][0]?.trim();
-                if (!name || name === "BRANCH" || name === "") continue;
+                const name = rows[i][0] ? rows[i][0].trim() : "";
+                if (!name || name === "BRANCH") continue;
 
-                const area = rows[i][1];
-                const pts = parseInt(rows[i][2]) || 0; // Col C
+                const area = rows[i][1] || "";
+                const pts = parseInt(rows[i][2]) || 0; // Col C[cite: 1]
                 const today = rows[i][3] || "0";       // Col D[cite: 1]
                 const india = rows[i][4] || "0";       // Col E[cite: 1]
                 const bdesh = rows[i][5] || "0";       // Col F[cite: 1]
@@ -91,49 +91,47 @@
             }
 
             // Sort by Points[cite: 1]
-            branches.sort((a, b) => b.pts - a.pts);
+            branches.sort(function(a, b) { return b.pts - a.pts; });
 
-            // Update Cards[cite: 1]
-            document.getElementById('topB').innerText = branches[0]?.name || "-";
+            // Update Header Stats[cite: 1]
+            if (branches.length > 0) {
+                document.getElementById('topB').innerText = branches[0].name;
+            }
             document.getElementById('totalP').innerText = grandTotal.toLocaleString();
 
-            // Build Table[cite: 1]
             const tbody = document.querySelector("#mainTable tbody");
-            tbody.innerHTML = branches.map((b, idx) => `
-                <tr class="branch-row" onclick="toggleRow('row-${idx}')">
-                    <td>#${idx + 1}</td>
-                    <td><strong>${b.name}</strong></td>
-                    <td>${b.area}</td>
-                    <td style="text-align:right"><strong>${b.pts}</strong></td>
-                </tr>
-                <tr id="row-${idx}" class="details-row">
-                    <td colspan="4">
-                        <div class="grid">
-                            <div><span>Today</span><strong>${b.today}</strong></div>
-                            <div><span>India</span><strong>${b.india}</strong></div>
-                            <div><span>B-Desh</span><strong>${b.bdesh}</strong></div>
-                            <div><span>Egypt</span><strong>${b.egypt}</strong></div>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = branches.map(function(b, idx) {
+                return '<tr class="branch-row" onclick="toggleRow(\'row-' + idx + '\')">' +
+                    '<td>#' + (idx + 1) + '</td>' +
+                    '<td><strong>' + b.name + '</strong></td>' +
+                    '<td>' + b.area + '</td>' +
+                    '<td style="text-align:right"><strong>' + b.pts + '</strong></td>' +
+                '</tr>' +
+                '<tr id="row-' + idx + '" class="details-row">' +
+                    '<td colspan="4">' +
+                        '<div class="grid">' +
+                            '<div><span>Today</span><strong>' + b.today + '</strong></div>' +
+                            '<div><span>India</span><strong>' + b.india + '</strong></div>' +
+                            '<div><span>B-Desh</span><strong>' + b.bdesh + '</strong></div>' +
+                            '<div><span>Egypt</span><strong>' + b.egypt + '</strong></div>' +
+                        '</div>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
 
         } catch (e) {
-            console.error("Dashboard Error:", e);
+            console.error("Fetch failed:", e);
         }
     }
 
     function toggleRow(id) {
         const row = document.getElementById(id);
         const isVisible = row.style.display === "table-row";
-        document.querySelectorAll('.details-row').forEach(r => r.style.display = 'none');
+        document.querySelectorAll('.details-row').forEach(function(r) { r.style.display = 'none'; });
         row.style.display = isVisible ? "none" : "table-row";[cite: 1]
     }
 
-    // Initial Load
     loadData();
-    // Auto-refresh every 2 minutes
-    setInterval(loadData, 120000);
 </script>
 </body>
 </html>
